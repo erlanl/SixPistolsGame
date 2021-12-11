@@ -1,6 +1,6 @@
 import pygame
 import pygame as pg
-
+#d
 class Balas:
     #lista de todas as balas do jogo
     lista_balas=[]
