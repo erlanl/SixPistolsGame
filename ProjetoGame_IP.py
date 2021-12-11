@@ -1,6 +1,12 @@
+
 import pygame
 import pygame as pg
-#d
+import random
+import copy
+
+#x_random = random.uniform(0, 640)
+#y_random = random.uniform(0, 480)
+
 class Balas:
     #lista de todas as balas do jogo
     lista_balas=[]
@@ -61,6 +67,39 @@ class Player:
         self.rect.center=[self.x,self.y]
         pg.draw.rect(self.win, self.cor, self.rect)
 
+def spawnarObjeto(screen, classe, evitaveis:list=[], borda:int=0, quantidade:int=1):
+    #cria uma copia pra evitar a modificação da lista original
+    evitaveis=evitaveis.copy()
+
+    for i in range(quantidade):
+        contagem_loops=0
+        lugar_valido=False
+        #fecha o loop se achar um lugar valido ou tentar mais de 50 vezes
+        while not lugar_valido and contagem_loops<50:
+            contagem_loops+=1
+            #pega o tamanho da tela
+            tamanho_tela_x, tamanho_tela_y = pygame.display.get_surface().get_size()
+
+            #gera coordenadas aleatorias
+            objeto_x=random.uniform(0,tamanho_tela_x)
+            objeto_y=random.uniform(0,tamanho_tela_y)
+
+            #cria o objeto
+            objeto=classe(screen, objeto_x, objeto_y)
+            #infla o retangulo pra simular a borda
+            objeto.rect.inflate_ip(borda,borda)
+            
+            #checa se o objeto colide com algum evitavel
+            lugar_valido=True
+            for evitavel in evitaveis:
+                if objeto.rect.colliderect(evitavel.rect):
+                    lugar_valido=False
+                    objeto.remover()
+                    break
+            #desinfla o retangulo
+            objeto.rect.inflate_ip(-borda,-borda)
+        #adiciona ao evitaveis para impedir que alguem spawne sobre ele
+        evitaveis.append(objeto)
 
 def main():
     screen = pg.display.set_mode((640, 480))
@@ -72,6 +111,9 @@ def main():
     Balas(screen, 200, 80)
     Balas(screen, 200, 180)
     Balas(screen, 100, 180)
+
+    players = [player1, player2]
+    
 
     #posição do jogador no plano (x, y)
     done = False
@@ -88,6 +130,10 @@ def main():
 
         player1.draw()
         player2.draw()
+
+        #spawna balas quando o numero fica abaixo de 10
+        if len(Balas.lista_balas)<10:
+            spawnarObjeto(screen,Balas,players+Balas.lista_balas,10)
 
         #desenha todas as balas da lista
         for bala in Balas.lista_balas:
@@ -114,3 +160,6 @@ if __name__ == '__main__':
     main()
     pg.quit()
     exit()
+
+
+#ATENÇÃO: o eixo y é invertido
