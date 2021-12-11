@@ -131,37 +131,20 @@ class Player:
     def draw(self):
         pg.draw.rect(self.win, self.cor, self.quadrado)
 
-
-# Classe plataforma inventada para teste, nao eh muito importante para o codigo da colisao
-# E eh bastante parecido com o codigo da classe Bala da branch Main no Github
-class Plataform:
-    quantidade_plataform = []
-
-    def __init__(self, win, x, y, comprimento, altura):
-        self.win = win
-        self.plataforma = pg.Rect(x, y, comprimento, altura)
-        self.cor = 'BLUE'
-        Plataform.quantidade_plataform.append(self.plataforma)
-
-    def draw(self):
-        pg.draw.rect(self.win, self.cor, self.plataforma)
-
-
 # Linha 93 ate 96 eh codigo basico
 def main():
     screen = pg.display.set_mode((600, 640))
     nivel = mapa.Mapa('mapa.txt')
+
+    quantidade_plataform = []
 
     clock = pg.time.Clock()
 
     player1 = Player(screen, 320, 240, pg.K_w, pg.K_s, pg.K_a, pg.K_d)
     player2 = Player(screen, 220, 140, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT)
 
-    # Criando 2 plataformas para testar colisao
-    plataforma_superior_direita = Plataform(screen, 50, 50, 150, 20)
-    plataforma_meio = Plataform(screen, 400, 300, 150, 20)
     for objeto in nivel.grupo:
-        Plataform.quantidade_plataform.append(objeto.rect)
+        quantidade_plataform.append(objeto.rect)
 
     # Linha 13 ate linha 108 eh codigo basico
     done = False
@@ -172,8 +155,8 @@ def main():
                 done = True
 
         # Chamando a funcao movimento do player, dentro dessa funcao movimento sera chamada a funcao colisao do player
-        player1.movimento(Plataform.quantidade_plataform, pg.K_w, pg.K_s, pg.K_a, pg.K_d)
-        player2.movimento(Plataform.quantidade_plataform, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT)
+        player1.movimento(quantidade_plataform, pg.K_w, pg.K_s, pg.K_a, pg.K_d)
+        player2.movimento(quantidade_plataform, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT)
 
         # Linha 113 ate 115 eh codigo basico
 
@@ -181,10 +164,6 @@ def main():
         player1.draw()
         player2.draw()
         nivel.atualizar_tela(screen)
-
-        # Desenhando as 2 plataformas de teste
-        plataforma_superior_direita.draw()
-        plataforma_meio.draw()
 
         # desenha todas as balas da lista
         for bala in Balas.lista_balas:
