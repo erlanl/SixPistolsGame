@@ -256,6 +256,7 @@ def spawnarObjeto(screen, classe, evitaveis:list=[], borda:int=0, quantidade:int
 
 # Linha 93 ate 96 eh codigo basico
 def main():
+    spawn_cooldown=0
     screen = pg.display.set_mode((600, 640))
     nivel = mapa.Mapa('mapa.txt')
 
@@ -307,9 +308,10 @@ def main():
         id2.draw()
         
 
-
-        if len(Balas.lista_balas) < 3:
-            spawnarObjeto(screen,Balas,evitar_lista+Balas.lista_balas,20,1)
+        spawn_cooldown+=1
+        if spawn_cooldown >= 90:
+            spawn_cooldown=0
+            spawnarObjeto(screen,Balas,evitar_lista+Balas.lista_balas,20)
 
         # desenha todas as balas da lista
         for bala in Balas.lista_balas:
