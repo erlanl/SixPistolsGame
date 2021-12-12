@@ -53,6 +53,3 @@ class Mapa:
     #Assim, cada desenho dos sprites é 40x40 pixels (40x15 = 600, 40x16 = 640)
     def conversorPixel(self, linha, coluna):
         return (linha*40, coluna*40)
-
-    
-    
