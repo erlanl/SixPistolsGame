@@ -255,11 +255,11 @@ def main():
     quantidade_plataform = []
 
     clock = pg.time.Clock()
-
     player1 = Player(screen, 320, 240, pg.K_w, pg.K_s, pg.K_a, pg.K_d, pg.K_f, None)
-    player2 = Player(screen, 220, 140, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_RCTRL, player1)
+    player2 = Player(screen, 220, 140, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_RCTRL, None)
+    
     player1 = Player(screen, 320, 240, pg.K_w, pg.K_s, pg.K_a, pg.K_d, pg.K_f, player2)
-
+    player2 = Player(screen, 220, 140, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_RCTRL, player1)
     #as fontes estão na pasta Assets, pode escolher qualquer fonte com tipo de arquivo .ttf
     #escolhendo a fonte pra usar, o segundo argumento é o tamanho
     fonte_pontuacao = pg.font.Font(os.path.join('Assets/alarm clock.ttf'),40)
