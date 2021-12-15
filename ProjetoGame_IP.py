@@ -95,6 +95,7 @@ class Player:
 
         self.tiros = []
         self.cool_down = 0
+        self.vida = 100
 
         self.inimigo = obj
         self.balas = 0
@@ -204,7 +205,11 @@ class Player:
             bala.movimento(vel, self.tecla_tiro)
             if bala.colisao(bala, obj):
                 self.tiros.remove(bala)
-    
+                self.vida -= 10
+                print(self.vida)
+                if self.vida <= 0:
+                    print('morreu')
+
     def draw(self):
         #self.rect.center=[self.x,self.y]
         pg.draw.rect(self.win, self.cor, self.rect)

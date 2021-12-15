@@ -2,8 +2,6 @@ import pygame.display
 import pygame as pg
 
 
-
-
 class pontuacao:
     def __init__(self,win,x,y,cor,fonte):
         self.texto = '00'
@@ -17,13 +15,13 @@ class pontuacao:
     def set_valor(self,valor):
         if valor < 10:
             valor = '0'+ str(valor)
-        self.texto = valor
+        self.texto = str(valor)
 
     def soma(self,valor):
         valor = valor + int(self.texto)
         if valor < 10:
             valor = '0'+ str(valor)
-        self.texto = valor
+        self.texto = str(valor)
     def draw(self):
         numeros = self.fonte.render(self.texto,True,self.cor)
         self.win.blit(numeros,(self.x,self.y,10,10))
