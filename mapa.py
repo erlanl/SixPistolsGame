@@ -17,6 +17,7 @@ class Mapa:
 
         #colocando todas as paredes inquebráveis em um grupo      
         self.grupo = pygame.sprite.RenderUpdates()
+        self.grupo_quebravel = pygame.sprite.RenderUpdates()
 
         self.parede_lados = pygame.image.load('casas_lado.png').convert_alpha()
         self.parede_hemisferios = pygame.image.load('casas_hemisferio.png').convert_alpha()
@@ -42,12 +43,15 @@ class Mapa:
                     self.grupo.add(Parede(self.parede_lados, (x,y)))
                 if caractere == '=':
                     self.grupo.add(Parede(self.parede_hemisferios, (x,y)))
-    
+                if caractere == '|':
+                    self.grupo_quebravel.add(Parede(self.parede_hemisferios, (x,y)))
 
     def atualizar_tela(self, screen):
         #screen.fill((255,255,255))
         self.grupo.update()
         self.grupo.draw(screen)
+        self.grupo_quebravel.update()
+        self.grupo_quebravel.draw(screen)
 
     #nosso mapa tem 600x650 e o arquivo tem 15 colunas e 16 filas
     #Assim, cada desenho dos sprites é 40x40 pixels (40x15 = 600, 40x16 = 640)

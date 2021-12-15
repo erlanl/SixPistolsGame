@@ -34,6 +34,22 @@ class Tiro:
     def colisao(self, obj, colidor):
         return obj.rect.colliderect(colidor)
 
+    def colisao_plataforma(self,lista_plataforma:list, lista_quebravel:list, nivelQuebravel):
+        for objeto in lista_quebravel:
+            if (self.rect.colliderect(objeto[0].rect)):
+                objeto[1] -= 1
+                if (objeto[1] <= 0):
+                    lista_quebravel.pop(lista_quebravel.index(objeto))
+                    lista_plataforma.pop(lista_plataforma.index(objeto[0].rect))
+                    nivelQuebravel.remove(objeto[0])
+                return True
+
+        for plataforma in lista_plataforma:
+            if (self.rect.colliderect(plataforma)):
+                return True
+
+        return False
+
     def movimento(self, vel, direcao):
         if direcao == pg.K_RCTRL:
             self.y += vel
@@ -90,7 +106,7 @@ class Player:
 
     # Linha 38 ate 39 eh codigo basico
 
-    def movimento(self, lista_plataformas, tecla_cima, tecla_baixo, tecla_esquerda, tecla_direita):
+    def movimento(self, lista_plataformas, lista_quebravel, nivelQuebravel, tecla_cima, tecla_baixo, tecla_esquerda, tecla_direita):
 
         self.tecla_cima = tecla_cima
         self.tecla_baixo = tecla_baixo
@@ -153,7 +169,7 @@ class Player:
         if keys[self.tecla_tiro]:
             self.tiro()
 
-        self.movimento_tiro(self.vel, self.inimigo)
+        self.movimento_tiro(self.vel, self.inimigo, lista_plataformas, lista_quebravel, nivelQuebravel)
 
     # Linha 93 ate 94 codigo basico
     def cooldown(self):
@@ -172,7 +188,7 @@ class Player:
                 print(self.quantidade_balas)
             
         
-    def movimento_tiro(self, vel, obj):
+    def movimento_tiro(self, vel, obj, lista_plataforma:list, list_quebravel:list, nivelQuebravel):
         vel = self.vel
         self.cooldown()
         for bala in self.tiros:
@@ -183,6 +199,8 @@ class Player:
                 print(self.vida)
                 if self.vida <= 0:
                     print('morreu')
+            elif (bala.colisao_plataforma(lista_plataforma, list_quebravel, nivelQuebravel)):
+                self.tiros.remove(bala)
 
     def draw(self):
         #self.rect.center=[self.x,self.y]
@@ -255,6 +273,7 @@ def main():
     nivel = mapa.Mapa('mapa.txt')
 
     quantidade_plataform = []
+    quantidade_plataformQuebravel = []
 
     clock = pg.time.Clock()
 
@@ -278,6 +297,10 @@ def main():
     for objeto in nivel.grupo:
         quantidade_plataform.append(objeto.rect)
         evitar_lista.append(objeto)
+    for obj in nivel.grupo_quebravel:
+        quantidade_plataformQuebravel.append([obj,5])
+        quantidade_plataform.append(obj.rect)
+        evitar_lista.append(obj)
 
     done = False
 
@@ -287,8 +310,8 @@ def main():
                 done = True
 
         # Chamando a funcao movimento do player, dentro dessa funcao movimento sera chamada a funcao colisao do player
-        player1.movimento(quantidade_plataform, pg.K_w, pg.K_s, pg.K_a, pg.K_d)
-        player2.movimento(quantidade_plataform, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT)
+        player1.movimento(quantidade_plataform, quantidade_plataformQuebravel, nivel.grupo_quebravel, pg.K_w, pg.K_s, pg.K_a, pg.K_d)
+        player2.movimento(quantidade_plataform, quantidade_plataformQuebravel, nivel.grupo_quebravel, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT)
 
 
         screen.fill((40, 40, 40))
