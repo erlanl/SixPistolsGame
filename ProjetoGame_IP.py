@@ -47,16 +47,19 @@ class Tiro:
         self.cor = 'BLUE'
         self.rect=pygame.Rect(x,y,5,5);
     
-    def cooldown(self): # Método do cooldown
-        if self.cool_down >= self.COOLDOWN: # Caso ultrapasse o tempo do cooldown irá reiniciar o tempo
+    def cooldown(self):
+        if self.cool_down >= self.COOLDOWN:
             self.cool_down = 0
-        elif self.cool_down > 0: # Enquanto for maior que 0 irá contando um por um 
+        elif self.cool_down > 0:
             self.cool_down += 1
 
 
     def draw(self):
         self.rect.center=[self.x,self.y]
         pg.draw.rect(self.win, self.cor, self.rect)
+    
+    def colisao(self, obj, colidor):
+        return obj.rect.colliderect(colidor)
 
     def movimento(self, vel, direcao):
         if direcao == pg.K_RCTRL:
@@ -64,13 +67,8 @@ class Tiro:
         elif direcao == pg.K_f:
             self.y -= vel
 
-    def colisao(self, obj, colidor):
-        return obj.rect.colliderect(colidor)
-        
     def fora_tela(self, altura):
         return not (self.y <= altura and self.y >= 0)
-    
-
 
 class Player:
     COOLDOWN = 30 # Metade de um segundo pois o jogo é 60 fps
@@ -97,6 +95,7 @@ class Player:
 
         self.tiros = []
         self.cool_down = 0
+        self.vida = 100
 
         self.inimigo = obj
         self.balas = 0
@@ -206,7 +205,11 @@ class Player:
             bala.movimento(vel, self.tecla_tiro)
             if bala.colisao(bala, obj):
                 self.tiros.remove(bala)
-    
+                self.vida -= 10
+                print(self.vida)
+                if self.vida <= 0:
+                    print('morreu')
+
     def draw(self):
         #self.rect.center=[self.x,self.y]
         pg.draw.rect(self.win, self.cor, self.rect)
@@ -255,11 +258,13 @@ def main():
     quantidade_plataform = []
 
     clock = pg.time.Clock()
+
     player1 = Player(screen, 320, 240, pg.K_w, pg.K_s, pg.K_a, pg.K_d, pg.K_f, None)
     player2 = Player(screen, 220, 140, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_RCTRL, None)
     
     player1 = Player(screen, 320, 240, pg.K_w, pg.K_s, pg.K_a, pg.K_d, pg.K_f, player2)
     player2 = Player(screen, 220, 140, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_RCTRL, player1)
+
     #as fontes estão na pasta Assets, pode escolher qualquer fonte com tipo de arquivo .ttf
     #escolhendo a fonte pra usar, o segundo argumento é o tamanho
     fonte_pontuacao = pg.font.Font(os.path.join('Assets/alarm clock.ttf'),40)
