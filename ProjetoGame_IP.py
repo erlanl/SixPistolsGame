@@ -201,6 +201,7 @@ class Player:
                 self.vida -= 10
                 print(self.vida)
                 if self.vida <= 0:
+                    self.inimigo.cor = 'RED'
                     print('morreu')
             elif (bala.colisao_plataforma(lista_plataforma, list_quebravel, nivelQuebravel)):
                 self.tiros.remove(bala)
