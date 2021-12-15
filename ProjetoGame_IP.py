@@ -21,7 +21,7 @@ class Balas:
         self.largura = 10
         self.altura = 10
         self.cor = 'YELLOW'
-        self.rect = pygame.Rect(x, y, 10, 10);
+        self.rect = pygame.Rect(x, y, 10, 10)
 
         # coloca a bala na lista
         Balas.lista_balas.append(self)
@@ -71,16 +71,17 @@ class Tiro:
         pg.draw.rect(self.win, self.cor, self.rect)
 
     def colisao_plataforma(self,lista_plataforma:list, lista_quebravel:list, nivelQuebravel):
-        for plataforma in lista_plataforma:
-            if (self.rect.colliderect(plataforma)):
-                return True
-
         for objeto in lista_quebravel:
             if (self.rect.colliderect(objeto[0].rect)):
                 objeto[1] -= 1
                 if (objeto[1] <= 0):
                     lista_quebravel.pop(lista_quebravel.index(objeto))
-                    nivelQuebravel.remove(objeto)
+                    lista_plataforma.pop(lista_plataforma.index(objeto[0].rect))
+                    nivelQuebravel.remove(objeto[0])
+                return True
+
+        for plataforma in lista_plataforma:
+            if (self.rect.colliderect(plataforma)):
                 return True
 
         return False
@@ -293,8 +294,10 @@ def main():
     for objeto in nivel.grupo:
         quantidade_plataform.append(objeto.rect)
         evitar_lista.append(objeto)
+
     for obj in nivel.grupo_quebravel:
         quantidade_plataformQuebravel.append([obj,5])
+        quantidade_plataform.append(obj.rect)
         evitar_lista.append(obj)
 
 
