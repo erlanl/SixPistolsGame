@@ -18,9 +18,13 @@ class Coletaveis:
         # coloca o coletavel na lista
         Coletaveis.lista_coletaveis.append(self)
 
-    def draw(self):
-        self.rect.center = [self.x, self.y]
-        pygame.draw.rect(self.win, self.cor, self.rect)
+    def draw(self,screen):
+        if self.cor != 'YELLOW':
+            self.rect.center = [self.x, self.y]
+            pygame.draw.rect(self.win, self.cor, self.rect)
+        else:
+            self.imagem = pygame.image.load('bullet.png')
+            screen.blit(self.imagem, self.rect)
 
     def remover(self):
         Coletaveis.lista_coletaveis.remove(self)

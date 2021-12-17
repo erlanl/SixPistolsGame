@@ -20,7 +20,16 @@ class Mapa:
         self.grupo_quebravel = pygame.sprite.RenderUpdates()
 
         self.parede_lados = pygame.image.load('casas_lado.png').convert_alpha()
-        self.parede_hemisferios = pygame.image.load('casas_hemisferio.png').convert_alpha()
+        self.parede_obstaculo = pygame.image.load('3.png').convert_alpha()
+        self.cercas_continuas = pygame.image.load('cercas_continuas.png').convert_alpha()
+        self.cercas_continuas_cima = pygame.image.load('cercas_continuas_cima.png').convert_alpha()
+        self.fim_cercas_continuas_direita_baixo = pygame.image.load('fim_cercas_continuas_direita_baixo.png')
+        self.fim_cercas_continuas_direita_cima = pygame.image.load('fim_cercas_continuas_direita_cima.png')
+        self.cerca_quina_superior_esquerda = pygame.image.load('cerca_quina_superior_esquerda.png').convert_alpha()
+        self.cerca_quina_superior_direita = pygame.image.load('cerca_quina_superior_direita.png').convert_alpha()
+        self.cerca_quina_inferior_esquerda = pygame.image.load('cerca_quina_inferior_esquerda.png').convert_alpha()
+        self.cerca_quina_inferior_direita = pygame.image.load('cerca_quina_inferior_direita.png').convert_alpha()
+        self.parede_invisivel = pygame.image.load('parede_invisivel.png').convert_alpha()
         
         
         #acessando o arquivo que contem o mapa em forma de texto
@@ -37,14 +46,33 @@ class Mapa:
                 coluna += 1
                 
                 #Convertendo os valores para pixel para saber a posição real na tela
-                x,y = self.conversorPixel(linha_auxiliar, coluna)  
+                x,y = self.conversorPixel(coluna, linha_auxiliar)  
                 
                 if caractere == '#':
                     self.grupo.add(Parede(self.parede_lados, (x,y)))
                 if caractere == '=':
-                    self.grupo.add(Parede(self.parede_hemisferios, (x,y)))
+                    self.grupo.add(Parede(self.cercas_continuas, (x,y)))
+                if caractere == '*':
+                    self.grupo.add(Parede(self.cercas_continuas_cima, (x,y)))
+                if caractere == '(':
+                    self.grupo.add(Parede(self.fim_cercas_continuas_direita_baixo, (x,y)))
+                if caractere == ')':
+                    self.grupo.add(Parede(self.fim_cercas_continuas_direita_cima, (x,y)))
+                if caractere == '-':
+                    self.grupo.add(Parede(self.parede_obstaculo, (x,y)))
                 if caractere == '|':
-                    self.grupo_quebravel.add(Parede(self.parede_hemisferios, (x,y)))
+                    self.grupo_quebravel.add(Parede(self.parede_obstaculo, (x,y)))
+                if caractere == '!':
+                    self.grupo.add(Parede(self.cerca_quina_superior_esquerda, (x,y)))
+                if caractere == '@':
+                    self.grupo.add(Parede(self.cerca_quina_superior_direita, (x,y)))
+                if caractere == '$':
+                    self.grupo.add(Parede(self.cerca_quina_inferior_esquerda, (x,y)))
+                if caractere == '%':
+                    self.grupo.add(Parede(self.cerca_quina_inferior_direita, (x,y)))
+                if caractere == 'i':
+                    self.grupo.add(Parede(self.parede_invisivel, (x,y)))
+                
 
     def atualizar_tela(self, screen):
         #screen.fill((255,255,255))
@@ -53,7 +81,7 @@ class Mapa:
         self.grupo_quebravel.update()
         self.grupo_quebravel.draw(screen)
 
-    #nosso mapa tem 600x650 e o arquivo tem 15 colunas e 16 filas
+    #nosso mapa tem 600x640 e o arquivo tem 15 colunas e 16 filas
     #Assim, cada desenho dos sprites é 40x40 pixels (40x15 = 600, 40x16 = 640)
     def conversorPixel(self, linha, coluna):
         return (linha*40, coluna*40)
