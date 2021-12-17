@@ -23,7 +23,7 @@ class Coletaveis:
             self.rect.center = [self.x, self.y]
             pygame.draw.rect(self.win, self.cor, self.rect)
         else:
-            self.imagem = pygame.image.load('bullet.png')
+            self.imagem = pygame.image.load('imagens/bullet.png')
             screen.blit(self.imagem, self.rect)
 
     def remover(self):
