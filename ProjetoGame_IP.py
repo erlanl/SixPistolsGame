@@ -1,6 +1,3 @@
-# As linhas que possuem um comentario dizendo "codigo basico" em cima sao linhas que estao no codigo do main e nao estao relacionadas com a mecanica de colisao
-
-# Linha 3 ate 9 eh codigo basico
 import pygame
 import pygame as pg
 from pygame.locals import *
@@ -10,31 +7,7 @@ from interface import pontuacao
 from interface import texto
 import pygame.font
 import os
-
-
-class Balas:
-    # lista de todas as balas do jogo
-    lista_balas = []
-
-    def __init__(self, win, x, y):
-        self.win = win
-        self.x = x
-        self.y = y
-
-        self.largura = 10
-        self.altura = 10
-        self.cor = 'YELLOW'
-        self.rect = pygame.Rect(x, y, 10, 10);
-
-        # coloca a bala na lista
-        Balas.lista_balas.append(self)
-
-    def draw(self):
-        self.rect.center = [self.x, self.y]
-        pg.draw.rect(self.win, self.cor, self.rect)
-
-    def remover(self):
-        Balas.lista_balas.remove(self)
+from coletaveis import *
 
 class Tiro:
     def __init__(self, win , x, y):
@@ -61,6 +34,22 @@ class Tiro:
     def colisao(self, obj, colidor):
         return obj.rect.colliderect(colidor)
 
+    def colisao_plataforma(self,lista_plataforma:list, lista_quebravel:list, nivelQuebravel):
+        for objeto in lista_quebravel:
+            if (self.rect.colliderect(objeto[0].rect)):
+                objeto[1] -= 1
+                if (objeto[1] <= 0):
+                    lista_quebravel.pop(lista_quebravel.index(objeto))
+                    lista_plataforma.pop(lista_plataforma.index(objeto[0].rect))
+                    nivelQuebravel.remove(objeto[0])
+                return True
+
+        for plataforma in lista_plataforma:
+            if (self.rect.colliderect(plataforma)):
+                return True
+
+        return False
+
     def movimento(self, vel, direcao):
         if direcao == pg.K_RCTRL:
             self.y += vel
@@ -70,15 +59,18 @@ class Tiro:
     def fora_tela(self, altura):
         return not (self.y <= altura and self.y >= 0)
 
+
 class Player:
     COOLDOWN = 30 # Metade de um segundo pois o jogo é 60 fps
 
-    def __init__(self, win, x, y, tecla_cima, tecla_baixo, tecla_esquerda, tecla_direita, tecla_tiro, obj):
+    def __init__(self, win, x, y, tecla_cima, tecla_baixo, tecla_esquerda, tecla_direita, tecla_tiro, obj,px,py,fonte, imagem):
 
         self.win = win
         self.x = x
         self.y = y
+        self.imagem = pygame.image.load(imagem)
 
+        self.pontos = pontuacao(win, px, py, (255, 255, 255), fonte)
         self.tecla_cima = tecla_cima
         self.tecla_baixo = tecla_baixo
         self.tecla_esquerda = tecla_esquerda
@@ -116,7 +108,7 @@ class Player:
 
     # Linha 38 ate 39 eh codigo basico
 
-    def movimento(self, lista_plataformas, tecla_cima, tecla_baixo, tecla_esquerda, tecla_direita):
+    def movimento(self, lista_plataformas, lista_quebravel, nivelQuebravel, tecla_cima, tecla_baixo, tecla_esquerda, tecla_direita):
 
         self.tecla_cima = tecla_cima
         self.tecla_baixo = tecla_baixo
@@ -179,7 +171,7 @@ class Player:
         if keys[self.tecla_tiro]:
             self.tiro()
 
-        self.movimento_tiro(self.vel, self.inimigo)
+        self.movimento_tiro(self.vel, self.inimigo, lista_plataformas, lista_quebravel, nivelQuebravel)
 
     # Linha 93 ate 94 codigo basico
     def cooldown(self):
@@ -195,10 +187,13 @@ class Player:
                 self.tiros.append(bala)
                 self.cool_down = 1
                 self.quantidade_balas -= 1
+                self.pontos.soma(-1)
                 print(self.quantidade_balas)
             
-        
-    def movimento_tiro(self, vel, obj):
+    def Ponto_soma(self, valor):
+        self.pontos.soma(valor)
+
+    def movimento_tiro(self, vel, obj, lista_plataforma:list, list_quebravel:list, nivelQuebravel):
         vel = self.vel
         self.cooldown()
         for bala in self.tiros:
@@ -208,127 +203,150 @@ class Player:
                 self.vida -= 10
                 print(self.vida)
                 if self.vida <= 0:
+                    self.inimigo.cor = 'RED'
                     print('morreu')
+            elif (bala.colisao_plataforma(lista_plataforma, list_quebravel, nivelQuebravel)):
+                self.tiros.remove(bala)
 
-    def draw(self):
-        #self.rect.center=[self.x,self.y]
-        pg.draw.rect(self.win, self.cor, self.rect)
+    def draw(self, screen):
+        screen.blit(self.imagem, self.rect)
         for bala in self.tiros:
             bala.draw()
+        self.pontos.draw()
 
-def spawnarObjeto(screen, classe, evitaveis:list=[], borda:int=0, quantidade:int=1):
-    #cria uma copia pra evitar a modificação da lista original
-    evitaveis=evitaveis.copy()
+def spawnarObjeto(screen, classe, evitaveis: list = [], borda: int = 0, quantidade: int = 1):
+    # cria uma copia pra evitar a modificação da lista original
+    evitaveis = evitaveis.copy()
 
     for i in range(quantidade):
-        contagem_loops=0
-        lugar_valido=False
-        #fecha o loop se achar um lugar valido ou tentar mais de 50 vezes
-        while not lugar_valido and contagem_loops<50:
-            contagem_loops+=1
-            #pega o tamanho da tela
+        contagem_loops = 0
+        lugar_valido = False
+        # fecha o loop se achar um lugar valido ou tentar mais de 50 vezes
+        while not lugar_valido and contagem_loops < 50:
+            contagem_loops += 1
+            # pega o tamanho da tela
             tamanho_tela_x, tamanho_tela_y = pygame.display.get_surface().get_size()
 
-            #gera coordenadas aleatorias
-            objeto_x=random.uniform(0,tamanho_tela_x)
-            objeto_y=random.uniform(0,tamanho_tela_y)
+            # gera coordenadas aleatorias
+            objeto_x = random.uniform(0, tamanho_tela_x)
+            objeto_y = random.uniform(0, tamanho_tela_y)
 
-            #cria o objeto
-            objeto=classe(screen, objeto_x, objeto_y)
-            #infla o retangulo pra simular a borda
-            objeto.rect.inflate_ip(borda,borda)
-            
-            #checa se o objeto colide com algum evitavel
-            lugar_valido=True
+            # cria o objeto
+            objeto = classe(screen, objeto_x, objeto_y)
+            # infla o retangulo pra simular a borda
+            objeto.rect.inflate_ip(borda, borda)
+
+            # checa se o objeto colide com algum evitavel
+            lugar_valido = True
             for evitavel in evitaveis:
                 if objeto.rect.colliderect(evitavel.rect):
-                    lugar_valido=False
+                    lugar_valido = False
                     objeto.remover()
                     break
-            #desinfla o retangulo
-            objeto.rect.inflate_ip(-borda,-borda)
-        #adiciona ao evitaveis para impedir que alguem spawne sobre ele
+            # desinfla o retangulo
+            objeto.rect.inflate_ip(-borda, -borda)
+        # adiciona ao evitaveis para impedir que alguem spawne sobre ele
         evitaveis.append(objeto)
 
-# Linha 93 ate 96 eh codigo basico
+def spawnarColetaveis(screen,evitar:list=[]):
+    #so permite que 8 coletaveis existam no maximo
+    if len(Coletaveis.lista_coletaveis)>=8:
+        return None
+
+    #pesos para probabilidade de spawnar
+    pesos=[70,10,10,10]
+    classes=[Balas,Velocidade,Velocidade_Tiro,Cadencia]
+
+    escolhido=None
+
+    soma_pesos=sum(pesos)
+    rand=random.uniform(1,soma_pesos)
+
+    soma_parcial=0
+    #escolhe uma classe aleatoria com base nos pesos
+    for i in range(len(pesos)):
+        if pesos[i]+soma_parcial>rand:
+            escolhido=classes[i]
+            break
+        soma_parcial+=pesos[i]
+    
+    spawnarObjeto(screen,escolhido,evitar,20)
+
 def main():
+    spawn_cooldown = 0
     screen = pg.display.set_mode((600, 640))
     nivel = mapa.Mapa('mapa.txt')
+    tela_fundo = pygame.image.load('background.png')
 
     quantidade_plataform = []
+    quantidade_plataformQuebravel = []
 
     clock = pg.time.Clock()
 
-    player1 = Player(screen, 320, 240, pg.K_w, pg.K_s, pg.K_a, pg.K_d, pg.K_f, None)
-    player2 = Player(screen, 220, 140, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_RCTRL, None)
-    
-    player1 = Player(screen, 320, 240, pg.K_w, pg.K_s, pg.K_a, pg.K_d, pg.K_f, player2)
-    player2 = Player(screen, 220, 140, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_RCTRL, player1)
+    fonte_pontuacao = pg.font.Font(os.path.join('Assets/alarm clock.ttf'), 40)
+    fonte_texto = pg.font.Font(os.path.join('Assets/SEASRN__.ttf'), 20)
 
-    #as fontes estão na pasta Assets, pode escolher qualquer fonte com tipo de arquivo .ttf
-    #escolhendo a fonte pra usar, o segundo argumento é o tamanho
-    fonte_pontuacao = pg.font.Font(os.path.join('Assets/alarm clock.ttf'),40)
-    fonte_texto = pg.font.Font(os.path.join('Assets/SEASRN__.ttf'),20)
-    #os argumentos são a janela, a posicao x, posicao y, cor e a fonte
-    pontuacao1 = pontuacao(screen,10,40,(255,255,255),fonte_pontuacao)
-    pontuacao2 = pontuacao(screen, (screen.get_width()-50), 40, (255, 255, 255), fonte_pontuacao)
-    #os argumentos sao a janela, o texto, posicao x , posicao y, cor e a fonte
-    id1 = texto(screen,'Jogador 1', 10,10,(255,255,255),fonte_texto)
-    id2 = texto(screen, 'Jogador 2', (screen.get_width()-135), 10, (255, 255, 255), fonte_texto)
+    player1 = Player(screen, 320, 240, pg.K_w, pg.K_s, pg.K_a, pg.K_d, pg.K_f, None,(screen.get_width()-90),530,fonte_pontuacao,'cowboy_joaquim2.png' )
+    player2 = Player(screen, 220, 140, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_RCTRL, None,40,70,fonte_pontuacao, 'cowgirl_leila.png')
+    player1.inimigo=player2
+    player2.inimigo=player1
 
-    evitar_lista=[]
+    # os argumentos sao a janela, o texto, posicao x , posicao y, cor e a fonte
+    id1 = texto(screen, 'Jogador 1', (screen.get_width() - 175), 570, (255, 255, 255), fonte_texto)
+    id2 = texto(screen, 'Jogador 2', 40, 40, (255, 255, 255), fonte_texto)
+
+
+
+
+    evitar_lista=[player1, player2]
     for objeto in nivel.grupo:
         quantidade_plataform.append(objeto.rect)
         evitar_lista.append(objeto)
+    for obj in nivel.grupo_quebravel:
+        quantidade_plataformQuebravel.append([obj,5])
+        quantidade_plataform.append(obj.rect)
+        evitar_lista.append(obj)
 
-    
-    # Linha 13 ate linha 108 eh codigo basico
     done = False
 
     while not done:
         for event in pg.event.get():
-            if event.type == pg.QUIT:
+            if event.type == pg.QUIT or (player1.vida <= 0 or player2.vida <= 0):
                 done = True
 
         # Chamando a funcao movimento do player, dentro dessa funcao movimento sera chamada a funcao colisao do player
-        player1.movimento(quantidade_plataform, pg.K_w, pg.K_s, pg.K_a, pg.K_d)
-        player2.movimento(quantidade_plataform, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT)
+        player1.movimento(quantidade_plataform, quantidade_plataformQuebravel, nivel.grupo_quebravel, pg.K_w, pg.K_s, pg.K_a, pg.K_d)
+        player2.movimento(quantidade_plataform, quantidade_plataformQuebravel, nivel.grupo_quebravel, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT)
 
-        # Linha 113 ate 115 eh codigo basico
 
-        screen.fill((40, 40, 40))
-        player1.draw()
-        player2.draw()
+        screen.blit(tela_fundo, (0,0))
+
         nivel.atualizar_tela(screen)
-        pontuacao1.draw()
-        pontuacao2.draw()
+
         id1.draw()
         id2.draw()
-        
 
+        spawn_cooldown+=1
+        if spawn_cooldown >= 60:
+            spawn_cooldown=0
+            spawnarColetaveis(screen, evitar_lista+Coletaveis.lista_coletaveis)
+            
+        # desenha todas as balas da lista e checa colisão com os jogadores
+        for coletavel in Coletaveis.lista_coletaveis:
+            coletavel.draw(screen)
+    
+            if coletavel.rect.colliderect(player1.rect):
+                coletavel.colisao_jogador(player1)
+                player1.pontos.set_valor(player1.quantidade_balas)
+                
 
-        if len(Balas.lista_balas) < 3:
-            spawnarObjeto(screen,Balas,evitar_lista+Balas.lista_balas,20,1)
+            if coletavel.rect.colliderect(player2.rect):
+                coletavel.colisao_jogador(player2)
+                player2.pontos.set_valor(player2.quantidade_balas)
 
-        # desenha todas as balas da lista
-        for bala in Balas.lista_balas:
-            bala.draw()
+        player1.draw(screen)
+        player2.draw(screen)
 
-        # para cada bala na lista checa a colisão
-        for bala in Balas.lista_balas:
-            if bala.rect.colliderect(player1.quadrado):
-                player1.quantidade_balas += 1
-                bala.remover()
-                pontuacao1.set_valor(player1.quantidade_balas)
-                print(f"player1 tem {player1.quantidade_balas} balas")
-
-            if bala.rect.colliderect(player2.quadrado):
-                player2.quantidade_balas += 1
-                bala.remover()
-                pontuacao2.set_valor(player2.quantidade_balas)
-                print(f"player2 tem {player2.quantidade_balas} balas")
-
-        # Linha 122 ate 129 eh codigo basico
         pg.display.flip()
         clock.tick(30)
 

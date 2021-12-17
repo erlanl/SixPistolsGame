@@ -2,8 +2,6 @@ import pygame.display
 import pygame as pg
 
 
-
-
 class pontuacao:
     def __init__(self,win,x,y,cor,fonte):
         self.texto = '00'
@@ -41,3 +39,9 @@ class texto:
     def draw(self):
         frase = self.fonte.render(self.texto,True,self.cor)
         self.win.blit(frase,(self.x,self.y,10,10))
+
+class vida:
+    def __init__(self, win, x, y, vida):
+        self.x = x
+        self.y = y
+        self.win = win
