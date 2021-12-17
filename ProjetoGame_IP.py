@@ -240,8 +240,7 @@ def main():
     fonte_pontuacao = pg.font.Font(os.path.join('Assets/alarm clock.ttf'), 40)
     fonte_texto = pg.font.Font(os.path.join('Assets/SEASRN__.ttf'), 20)
 
-    player1 = Player(screen, 320, 240, pg.K_w, pg.K_s, pg.K_a, pg.K_d, pg.K_f, None, 40, 70, fonte_pontuacao,
-                     'imagens/cowboy_joaquim2.png')
+    player1 = Player(screen, 320, 240, pg.K_w, pg.K_s, pg.K_a, pg.K_d, pg.K_f, None, 40, 70, fonte_pontuacao,'imagens/cowboy_joaquim2.png')
     player2 = Player(screen, 220, 140, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_RCTRL, None,
                      (screen.get_width() - 90), 530, fonte_pontuacao, 'imagens/cowgirl_leila.png')
     player1.inimigo = player2
