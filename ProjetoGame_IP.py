@@ -63,12 +63,12 @@ class Tiro:
 class Player:
     COOLDOWN = 30 # Metade de um segundo pois o jogo é 60 fps
 
-    def __init__(self, win, x, y, tecla_cima, tecla_baixo, tecla_esquerda, tecla_direita, tecla_tiro, obj):
+    def __init__(self, win, x, y, tecla_cima, tecla_baixo, tecla_esquerda, tecla_direita, tecla_tiro, obj,px,py,fonte):
 
         self.win = win
         self.x = x
         self.y = y
-
+        self.pontos = pontuacao(win, px, py, (255, 255, 255), fonte)
         self.tecla_cima = tecla_cima
         self.tecla_baixo = tecla_baixo
         self.tecla_esquerda = tecla_esquerda
@@ -185,9 +185,12 @@ class Player:
                 self.tiros.append(bala)
                 self.cool_down = 1
                 self.quantidade_balas -= 1
+                self.pontos.soma(-1)
                 print(self.quantidade_balas)
             
-        
+    def Ponto_soma(self, valor):
+        self.pontos.soma(valor)
+
     def movimento_tiro(self, vel, obj, lista_plataforma:list, list_quebravel:list, nivelQuebravel):
         vel = self.vel
         self.cooldown()
@@ -208,7 +211,7 @@ class Player:
         pg.draw.rect(self.win, self.cor, self.rect)
         for bala in self.tiros:
             bala.draw()
-
+        self.pontos.draw()
 
 def spawnarObjeto(screen, classe, evitaveis: list = [], borda: int = 0, quantidade: int = 1):
     # cria uma copia pra evitar a modificação da lista original
@@ -278,21 +281,20 @@ def main():
 
     clock = pg.time.Clock()
 
-    player1 = Player(screen, 320, 240, pg.K_w, pg.K_s, pg.K_a, pg.K_d, pg.K_f, None)
-    player2 = Player(screen, 220, 140, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_RCTRL, None)
+    fonte_pontuacao = pg.font.Font(os.path.join('Assets/alarm clock.ttf'), 40)
+    fonte_texto = pg.font.Font(os.path.join('Assets/SEASRN__.ttf'), 20)
+
+    player1 = Player(screen, 320, 240, pg.K_w, pg.K_s, pg.K_a, pg.K_d, pg.K_f, None,40,70,fonte_pontuacao)
+    player2 = Player(screen, 220, 140, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_RCTRL, None,(screen.get_width()-90),530,fonte_pontuacao)
     player1.inimigo=player2
     player2.inimigo=player1
 
-    # as fontes estão na pasta Assets, pode escolher qualquer fonte com tipo de arquivo .ttf
-    # escolhendo a fonte pra usar, o segundo argumento é o tamanho
-    fonte_pontuacao = pg.font.Font(os.path.join('Assets/alarm clock.ttf'), 40)
-    fonte_texto = pg.font.Font(os.path.join('Assets/SEASRN__.ttf'), 20)
-    # os argumentos são a janela, a posicao x, posicao y, cor e a fonte
-    pontuacao1 = pontuacao(screen, 10, 40, (255, 255, 255), fonte_pontuacao)
-    pontuacao2 = pontuacao(screen, (screen.get_width() - 50), 40, (255, 255, 255), fonte_pontuacao)
     # os argumentos sao a janela, o texto, posicao x , posicao y, cor e a fonte
-    id1 = texto(screen, 'Jogador 1', 10, 10, (255, 255, 255), fonte_texto)
-    id2 = texto(screen, 'Jogador 2', (screen.get_width() - 135), 10, (255, 255, 255), fonte_texto)
+    id1 = texto(screen, 'Jogador 1', 40, 40, (255, 255, 255), fonte_texto)
+    id2 = texto(screen, 'Jogador 2', (screen.get_width() - 175), 570, (255, 255, 255), fonte_texto)
+
+
+
 
     evitar_lista=[player1, player2]
     for objeto in nivel.grupo:
@@ -316,11 +318,9 @@ def main():
 
 
         screen.fill((40, 40, 40))
-        player1.draw()
-        player2.draw()
+
         nivel.atualizar_tela(screen)
-        pontuacao1.draw()
-        pontuacao2.draw()
+
         id1.draw()
         id2.draw()
 
@@ -335,12 +335,15 @@ def main():
     
             if coletavel.rect.colliderect(player1.rect):
                 coletavel.colisao_jogador(player1)
-                pontuacao1.set_valor(player1.quantidade_balas)
+                player1.pontos.set_valor(player1.quantidade_balas)
                 
 
             if coletavel.rect.colliderect(player2.rect):
                 coletavel.colisao_jogador(player2)
-                pontuacao2.set_valor(player2.quantidade_balas)
+                player2.pontos.set_valor(player2.quantidade_balas)
+
+        player1.draw()
+        player2.draw()
 
         pg.display.flip()
         clock.tick(30)
