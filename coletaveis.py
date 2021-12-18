@@ -35,7 +35,8 @@ class Coletaveis:
             screen.blit(self.imagem, self.rect)
 
     def remover(self):
-        Coletaveis.lista_coletaveis.remove(self)
+        if self in Coletaveis.lista_coletaveis:
+            Coletaveis.lista_coletaveis.remove(self)
 
     @abstractmethod
     def colisao_jogador(self):
