@@ -2,8 +2,6 @@ import pygame.display
 import pygame as pg
 
 
-
-
 class pontuacao:
     def __init__(self,win,x,y,cor,fonte):
         self.texto = '00'

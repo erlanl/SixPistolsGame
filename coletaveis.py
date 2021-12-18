@@ -1,11 +1,20 @@
 import pygame
 from abc import ABC, abstractmethod
+from pygame import mixer
 
+pygame.mixer.init()
+som_coleta= mixer.Sound("sons/coletar.wav")
+som_coleta.set_volume(0.03)
+#classe que todos os coletáveis herdam
 class Coletaveis:
-    # lista de todos os coeltaveis
+    # lista de todos os coletaveis
     lista_coletaveis = []
     cor="WHITE"
+    som_coleta=None
+    
+
     def __init__(self, win, x, y):
+        
         self.win = win
         self.x = x
         self.y = y
@@ -17,9 +26,13 @@ class Coletaveis:
         # coloca o coletavel na lista
         Coletaveis.lista_coletaveis.append(self)
 
-    def draw(self):
-        self.rect.center = [self.x, self.y]
-        pygame.draw.rect(self.win, self.cor, self.rect)
+    def draw(self,screen):
+        if self.cor != 'YELLOW':
+            self.rect.center = [self.x, self.y]
+            pygame.draw.rect(self.win, self.cor, self.rect)
+        else:
+            self.imagem = pygame.image.load('imagens/bullet.png')
+            screen.blit(self.imagem, self.rect)
 
     def remover(self):
         Coletaveis.lista_coletaveis.remove(self)
@@ -28,35 +41,47 @@ class Coletaveis:
     def colisao_jogador(self):
         pass
 
+#balsa coletáveis
 class Balas(Coletaveis):
     cor="YELLOW"
 
     def colisao_jogador(self, jogador):
+        som_coleta.play()
         jogador.quantidade_balas+=1
         self.remover()
+        print(f"jogador tem {jogador.quantidade_balas} balas")
 
+#power up que aumetna a velocidade do jogador
 class Velocidade(Coletaveis):
     cor="PURPLE"
 
     def colisao_jogador(self, jogador):
+        som_coleta.play()
         if jogador.velocidade<15:
             jogador.velocidade+=1
         self.remover()
+        print(f"velocidade do jogador aumentada para {jogador.velocidade}")
 
+#pwoer up que aumenta a velocidade dos tiros
 class Velocidade_Tiro(Coletaveis):
     cor="CYAN"
 
     def colisao_jogador(self, jogador):
+        som_coleta.play()
         if jogador.vel<15:
             jogador.vel+=1
         self.remover()
 
+        print(f"velocidade da bala aumentada para {jogador.vel}")
+
+#power up que diminui o delay dos tiros
 class Cadencia(Coletaveis):
     cor="BLACK"
 
     def colisao_jogador(self, jogador):
+        som_coleta.play()
         if jogador.COOLDOWN>15:
             jogador.COOLDOWN-=3
         self.remover()
-    
+        print(f"cooldown reduzido para {jogador.COOLDOWN}")
 
