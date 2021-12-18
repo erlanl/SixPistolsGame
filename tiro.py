@@ -10,6 +10,7 @@ class Tiro:
         self.altura = 5
         self.cor = 'BLUE'
         self.rect = pg.Rect(x, y, 5, 5);
+        self.loops=0
 
     def cooldown(self):
         if self.cool_down >= self.COOLDOWN:
@@ -70,6 +71,14 @@ class Tiro:
             self.y += vel
         elif direcao == pg.K_f:
             self.y -= vel
+        
+        #teleporta a tela para o outro lado da tela
+        if self.y<0:
+            self.loops+=1
+            self.y = 640
+        if self.y>640:
+            self.loops+=1
+            self.y = 0
 
     def fora_tela(self, altura):
         return not (self.y <= altura and self.y >= 0)

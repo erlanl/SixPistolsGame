@@ -3,6 +3,7 @@ import pygame as pg
 from pygame.locals import *
 import mapa
 import random
+from pygame import mixer
 from interface import pontuacao
 from interface import texto
 import pygame.font
@@ -10,6 +11,20 @@ import os
 from coletaveis import *
 from tiro import *
 
+som_tiro= mixer.Sound("sons/atirar.wav")
+som_tiro.set_volume(0.3)
+som_dano= mixer.Sound("sons/dano.wav")
+som_dano.set_volume(0.4)
+som_morte= mixer.Sound("sons/morte.wav")
+som_morte.set_volume(0.2)
+som_batida= mixer.Sound("sons/batida.wav")
+som_batida.set_volume(0.02)
+som_passos= mixer.Sound("sons/passos.wav")
+som_passos.set_volume(0.15)
+
+mixer.music.load("sons/musica.mp3")
+mixer.music.set_volume(0.03)
+mixer.music.play(-1)
 
 class Player:
     COOLDOWN = 30  # Metade de um segundo pois o jogo é 60 fps
@@ -119,6 +134,12 @@ class Player:
                 # Modificamos a posicao do jogador para que fique em cima da plataforma
                 self.quadrado.y = lista_plataformas[indice].y - self.quadrado.height
 
+        #mantem o jogador dentro da tela
+        if self.quadrado.y<0:
+            self.quadrado.y=0
+        if self.quadrado.bottom>640:
+            self.quadrado.bottom=640
+
         if keys[self.tecla_tiro]:
             self.tiro()
 
@@ -134,6 +155,7 @@ class Player:
     def tiro(self):
         if (self.quantidade_balas > 0):
             if self.cool_down == 0:
+                som_tiro.play()
                 bala = Tiro(self.win, self.rect.center[0], self.rect.center[1])
                 self.tiros.append(bala)
                 self.cool_down = 1
@@ -148,15 +170,22 @@ class Player:
         vel = self.vel
         self.cooldown()
         for bala in self.tiros:
+            
             bala.movimento(vel, self.tecla_tiro)
-            if bala.colisao(bala, obj):
+            if bala.loops>1:
+                self.tiros.remove(bala)
+            elif bala.colisao(bala, obj):
                 self.tiros.remove(bala)
                 self.vida -= 10
                 print(self.vida)
                 if self.vida <= 0:
+                    som_morte.play()
                     self.inimigo.cor = 'RED'
                     print('morreu')
+                else:
+                    som_dano.play()
             elif (bala.colisao_plataforma(lista_plataforma, list_quebravel, nivelQuebravel)):
+                som_batida.play()
                 self.tiros.remove(bala)
 
     def draw(self, screen):
@@ -180,8 +209,8 @@ def spawnarObjeto(screen, classe, evitaveis: list = [], borda: int = 0, quantida
             tamanho_tela_x, tamanho_tela_y = pygame.display.get_surface().get_size()
 
             # gera coordenadas aleatorias
-            objeto_x = random.uniform(0, tamanho_tela_x)
-            objeto_y = random.uniform(0, tamanho_tela_y)
+            objeto_x = random.uniform(borda, tamanho_tela_x-borda)
+            objeto_y = random.uniform(borda, tamanho_tela_y-borda)
 
             # cria o objeto
             objeto = classe(screen, objeto_x, objeto_y)
@@ -285,7 +314,7 @@ def main():
             spawnarColetaveis(screen, evitar_lista + Coletaveis.lista_coletaveis)
 
         # desenha todas as balas da lista e checa colisão com os jogadores
-        for coletavel in Coletaveis.lista_coletaveis:
+        for coletavel in Coletaveis.lista_coletaveis.copy():
             coletavel.draw(screen)
 
             if coletavel.rect.colliderect(player1.rect):

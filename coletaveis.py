@@ -1,12 +1,20 @@
 import pygame
 from abc import ABC, abstractmethod
+from pygame import mixer
 
+pygame.mixer.init()
+som_coleta= mixer.Sound("sons/coletar.wav")
+som_coleta.set_volume(0.03)
 #classe que todos os coletáveis herdam
 class Coletaveis:
     # lista de todos os coletaveis
     lista_coletaveis = []
     cor="WHITE"
+    som_coleta=None
+    
+
     def __init__(self, win, x, y):
+        
         self.win = win
         self.x = x
         self.y = y
@@ -38,6 +46,7 @@ class Balas(Coletaveis):
     cor="YELLOW"
 
     def colisao_jogador(self, jogador):
+        som_coleta.play()
         jogador.quantidade_balas+=1
         self.remover()
         print(f"jogador tem {jogador.quantidade_balas} balas")
@@ -47,6 +56,7 @@ class Velocidade(Coletaveis):
     cor="PURPLE"
 
     def colisao_jogador(self, jogador):
+        som_coleta.play()
         if jogador.velocidade<15:
             jogador.velocidade+=1
         self.remover()
@@ -57,6 +67,7 @@ class Velocidade_Tiro(Coletaveis):
     cor="CYAN"
 
     def colisao_jogador(self, jogador):
+        som_coleta.play()
         if jogador.vel<15:
             jogador.vel+=1
         self.remover()
@@ -68,6 +79,7 @@ class Cadencia(Coletaveis):
     cor="BLACK"
 
     def colisao_jogador(self, jogador):
+        som_coleta.play()
         if jogador.COOLDOWN>15:
             jogador.COOLDOWN-=3
         self.remover()
