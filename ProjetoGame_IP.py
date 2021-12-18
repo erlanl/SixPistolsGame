@@ -5,6 +5,7 @@ import mapa
 import random
 from interface import pontuacao
 from interface import texto
+from interface import Vida
 import pygame.font
 import os
 from coletaveis import *
@@ -68,6 +69,9 @@ class Player:
         self.win = win
         self.x = x
         self.y = y
+        if imagem == 'cowboy_joaquim2.png':
+            self.nome = 'player1'
+        else: self.nome = 'player2'
         self.imagem = pygame.image.load(imagem)
 
         self.pontos = pontuacao(win, px, py, (255, 255, 255), fonte)
@@ -88,6 +92,10 @@ class Player:
         self.tiros = []
         self.cool_down = 0
         self.vida = 100
+        if self.nome == 'player1':
+            self.vida_p = Vida(win, px - 250, py + 40 ,'coracao_vida.png', self.nome, self.vida)
+        elif self.nome == 'player2':
+            self.vida_p = Vida(win, px * 5.4 , py - 8,'coracao_vida.png', self.nome, self.vida)
 
         self.inimigo = obj
         self.balas = 0
@@ -114,7 +122,7 @@ class Player:
         self.tecla_baixo = tecla_baixo
         self.tecla_esquerda = tecla_esquerda
         self.tecla_direita = tecla_direita
-
+        
         keys = pg.key.get_pressed()
 
         # Variavel que diz se o jogador colidiu com uma plataforma
@@ -172,14 +180,14 @@ class Player:
             self.tiro()
 
         self.movimento_tiro(self.vel, self.inimigo, lista_plataformas, lista_quebravel, nivelQuebravel)
-
+        
+        
     # Linha 93 ate 94 codigo basico
     def cooldown(self):
         if self.cool_down >= self.COOLDOWN:
             self.cool_down = 0
         elif self.cool_down > 0:
             self.cool_down += 1
-
     def tiro(self):
         if (self.quantidade_balas > 0):
             if self.cool_down == 0:
@@ -192,7 +200,7 @@ class Player:
             
     def Ponto_soma(self, valor):
         self.pontos.soma(valor)
-
+    
     def movimento_tiro(self, vel, obj, lista_plataforma:list, list_quebravel:list, nivelQuebravel):
         vel = self.vel
         self.cooldown()
@@ -200,11 +208,9 @@ class Player:
             bala.movimento(vel, self.tecla_tiro)
             if bala.colisao(bala, obj):
                 self.tiros.remove(bala)
-                self.vida -= 10
-                print(self.vida)
-                if self.vida <= 0:
-                    self.inimigo.cor = 'RED'
-                    print('morreu')
+                self.inimigo.vida -= 10
+                print(f'{self.inimigo.nome}:{self.inimigo.vida}')
+                
             elif (bala.colisao_plataforma(lista_plataforma, list_quebravel, nivelQuebravel)):
                 self.tiros.remove(bala)
 
@@ -213,7 +219,9 @@ class Player:
         for bala in self.tiros:
             bala.draw()
         self.pontos.draw()
-
+        self.vida_p.vida_funcao(self.vida)
+        self.vida_p.draw()
+        
 def spawnarObjeto(screen, classe, evitaveis: list = [], borda: int = 0, quantidade: int = 1):
     # cria uma copia pra evitar a modificação da lista original
     evitaveis = evitaveis.copy()
@@ -295,6 +303,10 @@ def main():
     id1 = texto(screen, 'Jogador 1', (screen.get_width() - 175), 570, (255, 255, 255), fonte_texto)
     id2 = texto(screen, 'Jogador 2', 40, 40, (255, 255, 255), fonte_texto)
 
+    # vida_p1 = Vida(screen, (screen.get_width() - 175), 570,'coracao_vida.png', 'player1', player1.vida) 
+    # vida_p2 = Vida(screen, 40, 40,'coracao_vida.png', 'player2',player2.vida) 
+    
+    
 
 
 
@@ -325,6 +337,7 @@ def main():
 
         id1.draw()
         id2.draw()
+
 
         spawn_cooldown+=1
         if spawn_cooldown >= 60:
