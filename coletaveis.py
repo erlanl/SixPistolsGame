@@ -27,10 +27,16 @@ class Coletaveis:
         Coletaveis.lista_coletaveis.append(self)
 
     def draw(self,screen):
-        if self.cor != 'YELLOW':
-            self.rect.center = [self.x, self.y]
-            pygame.draw.rect(self.win, self.cor, self.rect)
-        else:
+        if self.atributo == "VELOCIDADE_JOGADOR":
+            self.imagem = pygame.image.load('imagens/buff_rapidez.png')
+            screen.blit(self.imagem, self.rect)
+        if self.atributo == "VELOCIDADE_TIRO":
+            self.imagem = pygame.image.load('imagens/buff_velo_tiro.png')
+            screen.blit(self.imagem, self.rect)
+        if self.atributo == "DIMINUIR_COOLDOWN":
+            self.imagem = pygame.image.load('imagens/buff_reduz_cooldown.png')
+            screen.blit(self.imagem, self.rect)
+        if self.atributo == "BALA":
             self.imagem = pygame.image.load('imagens/bullet.png')
             screen.blit(self.imagem, self.rect)
 
@@ -44,7 +50,7 @@ class Coletaveis:
 
 #balsa coletáveis
 class Balas(Coletaveis):
-    cor="YELLOW"
+    atributo="BALA"
 
     def colisao_jogador(self, jogador):
         som_coleta.play()
@@ -52,9 +58,9 @@ class Balas(Coletaveis):
         self.remover()
         print(f"jogador tem {jogador.quantidade_balas} balas")
 
-#power up que aumetna a velocidade do jogador
+#power up que aumenta velocidade do jogador
 class Velocidade(Coletaveis):
-    cor="PURPLE"
+    atributo="VELOCIDADE_JOGADOR"
 
     def colisao_jogador(self, jogador):
         som_coleta.play()
@@ -65,7 +71,7 @@ class Velocidade(Coletaveis):
 
 #pwoer up que aumenta a velocidade dos tiros
 class Velocidade_Tiro(Coletaveis):
-    cor="CYAN"
+    atributo="VELOCIDADE_TIRO"
 
     def colisao_jogador(self, jogador):
         som_coleta.play()
@@ -77,7 +83,7 @@ class Velocidade_Tiro(Coletaveis):
 
 #power up que diminui o delay dos tiros
 class Cadencia(Coletaveis):
-    cor="BLACK"
+    atributo="DIMINUIR_COOLDOWN"
 
     def colisao_jogador(self, jogador):
         som_coleta.play()
