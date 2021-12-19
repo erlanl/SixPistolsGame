@@ -6,6 +6,7 @@ import random
 from pygame import mixer
 from interface import pontuacao
 from interface import texto
+from interface import Vida
 import pygame.font
 import os
 from coletaveis import *
@@ -34,6 +35,12 @@ class Player:
         self.win = win
         self.x = x
         self.y = y
+
+        # Verificar qual é o player através da imagem
+        if imagem == 'imagens/cowboy_joaquim2.png':
+            self.nome = 'player1'
+        else: self.nome = 'player2'
+
         self.imagem = pygame.image.load(imagem)
 
         self.pontos = pontuacao(win, px, py, (255, 255, 255), fonte)
@@ -54,6 +61,12 @@ class Player:
         self.tiros = []
         self.cool_down = 0
         self.vida = 100
+        
+        # Criar um objeto de vida para cada player
+        if self.nome == 'player1':
+            self.vida_p = Vida(win, px - 250, py + 40 ,'imagens/coracao_vida.png', self.nome, self.vida)
+        elif self.nome == 'player2':
+            self.vida_p = Vida(win, px * 5.4 , py - 8,'imagens/coracao_vida.png', self.nome, self.vida)
 
         self.inimigo = obj
         self.balas = 0
@@ -176,12 +189,10 @@ class Player:
                 self.tiros.remove(bala)
             elif bala.colisao(bala, obj):
                 self.tiros.remove(bala)
-                self.vida -= 10
+                self.inimigo.vida -= 10
                 print(self.vida)
                 if self.vida <= 0:
                     som_morte.play()
-                    self.inimigo.cor = 'RED'
-                    print('morreu')
                 else:
                     som_dano.play()
             elif (bala.colisao_plataforma(lista_plataforma, list_quebravel, nivelQuebravel)):
@@ -193,6 +204,8 @@ class Player:
         for bala in self.tiros:
             bala.draw()
         self.pontos.draw()
+        self.vida_p.vida_funcao(self.vida)
+        self.vida_p.draw()
 
 
 def spawnarObjeto(screen, classe, evitaveis: list = [], borda: int = 0, quantidade: int = 1):
@@ -269,15 +282,14 @@ def main():
     fonte_pontuacao = pg.font.Font(os.path.join('Assets/alarm clock.ttf'), 40)
     fonte_texto = pg.font.Font(os.path.join('Assets/SEASRN__.ttf'), 20)
 
-    player1 = Player(screen, 320, 240, pg.K_w, pg.K_s, pg.K_a, pg.K_d, pg.K_f, None, 40, 70, fonte_pontuacao,'imagens/cowboy_joaquim2.png')
-    player2 = Player(screen, 220, 140, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_RCTRL, None,
-                     (screen.get_width() - 90), 530, fonte_pontuacao, 'imagens/cowgirl_leila.png')
-    player1.inimigo = player2
-    player2.inimigo = player1
+    player1 = Player(screen, 320, 240, pg.K_w, pg.K_s, pg.K_a, pg.K_d, pg.K_f, None,(screen.get_width()-90),530,fonte_pontuacao,'imagens/cowboy_joaquim2.png' )
+    player2 = Player(screen, 220, 140, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_RCTRL, None,40,70,fonte_pontuacao, 'imagens/cowgirl_leila.png')
+    player1.inimigo=player2
+    player2.inimigo=player1
 
     # os argumentos sao a janela, o texto, posicao x , posicao y, cor e a fonte
-    id1 = texto(screen, 'Jogador 1', 40, 40, (255, 255, 255), fonte_texto)
-    id2 = texto(screen, 'Jogador 2', (screen.get_width() - 175), 570, (255, 255, 255), fonte_texto)
+    id1 = texto(screen, 'Jogador 1', (screen.get_width() - 175), 570, (255, 255, 255), fonte_texto)
+    id2 = texto(screen, 'Jogador 2', 40, 40, (255, 255, 255), fonte_texto)
 
     evitar_lista = [player1, player2]
     for objeto in nivel.grupo:
