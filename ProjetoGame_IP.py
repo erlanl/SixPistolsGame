@@ -60,13 +60,13 @@ class Player:
 
         self.tiros = []
         self.cool_down = 0
-        self.vida = 100
+        self.vida = 60
         
         # Criar um objeto de vida para cada player
         if self.nome == 'player1':
-            self.vida_p = Vida(win, px - 250, py + 40 ,'imagens/coracao_vida.png', self.nome, self.vida)
+            self.vida_p = Vida(win, px - 100, py + 15 ,'imagens/coracao_vida.png', self.nome, self.vida)
         elif self.nome == 'player2':
-            self.vida_p = Vida(win, px * 5.4 , py - 8,'imagens/coracao_vida.png', self.nome, self.vida)
+            self.vida_p = Vida(win, px * 3.5 , py - 20,'imagens/coracao_vida.png', self.nome, self.vida)
 
         self.inimigo = obj
         self.balas = 0
@@ -304,7 +304,7 @@ def main():
 
     while not done:
         for event in pg.event.get():
-            if event.type == pg.QUIT:
+            if (event.type == pg.QUIT) or (player1.vida <= 0 or player2.vida <= 0):
                 done = True
 
         # Chamando a funcao movimento do player, dentro dessa funcao movimento sera chamada a funcao colisao do player

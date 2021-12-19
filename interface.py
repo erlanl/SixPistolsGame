@@ -48,25 +48,11 @@ class Vida:
         self.nome = nome
         self.vida_per = vida
         self.img_vida = pygame.image.load(img_vida)
-        self.vidas = [self.img_vida,self.img_vida,self.img_vida,self.img_vida,self.img_vida]
+        self.vidas = [self.img_vida,self.img_vida,self.img_vida]
         self.erro = False
 
     def vida_funcao(self, vida_atual):
-        if vida_atual == 90:
-            self.vidas[4] = pygame.image.load('imagens/coracao_vida_partido.png')
-        elif vida_atual == 80:
-            try:
-                self.vidas.pop(4)
-            except IndexError:
-                self.erro = True
-        elif vida_atual == 70:
-            self.vidas[3] = pygame.image.load('imagens/coracao_vida_partido.png')
-        elif vida_atual == 60:
-            try:
-                self.vidas.pop(3)
-            except IndexError:
-                self.erro = True   
-        elif vida_atual == 50:
+        if vida_atual == 50:
             self.vidas[2] = pygame.image.load('imagens/coracao_vida_partido.png')
         elif vida_atual == 40:
             try:
@@ -79,7 +65,7 @@ class Vida:
             try:
                 self.vidas.pop(1)
             except IndexError:
-                self.erro = True
+                self.erro = True   
         elif vida_atual == 10:
             self.vidas[0] = pygame.image.load('imagens/coracao_vida_partido.png')
         elif vida_atual <= 0:
@@ -92,10 +78,20 @@ class Vida:
     def draw(self):
         if self.nome == 'player1':
             imagem = pygame.image.load('imagens/head_cowboy.png')
+            inicialx= self.x - 30
         elif self.nome == 'player2':
             imagem = pygame.image.load('imagens/head_cowgirl.png')
+            inicialx= self.x - 40
         
-        self.win.blit(imagem,(self.x - 40,self.y,20,20))
+        
+        self.win.blit(imagem,(inicialx,self.y+20,20,20))
 
         for i in range(len(self.vidas)):
-            self.win.blit(self.vidas[i], (self.x+ (i * 30),self.y,10,10))
+            if i == 0:
+                if self.nome == 'player1':
+                    inicialx = inicialx + 40
+                elif self.nome == 'player2':
+                    inicialx = inicialx + 80
+                self.win.blit(self.vidas[i], (inicialx,self.y,10,10))
+            else:
+                self.win.blit(self.vidas[i], (inicialx+ (i * 30),self.y,10,10))
