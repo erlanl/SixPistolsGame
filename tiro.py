@@ -1,11 +1,11 @@
 import pygame as pg
 
 class Tiro:
-    def __init__(self, win, x, y):
+    def __init__(self, win, x, y,direcao):
         self.win = win
         self.x = x
         self.y = y
-
+        self.direcao = direcao
         self.largura = 5
         self.altura = 5
         self.cor = 'BLUE'
@@ -66,11 +66,12 @@ class Tiro:
         #Caso a bala nao tenha colidido com nada, retornamos False
         return False
 
-    def movimento(self, vel, direcao):
-        if direcao == pg.K_RCTRL:
+    def movimento(self, vel):
+        if self.direcao == "baixo":
             self.y += vel
-        elif direcao == pg.K_f:
+        elif self.direcao == "cima":
             self.y -= vel
+
         
         #teleporta a tela para o outro lado da tela
         if self.y<0:

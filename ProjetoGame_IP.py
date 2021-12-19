@@ -57,7 +57,7 @@ class Player:
         # Da linha 19 a 20, eh codigo base
         self.velocidade = 10
         self.cor = 'WHITE'
-
+        self.direcao = "baixo"
         self.tiros = []
         self.cool_down = 0
         self.vida = 60
@@ -127,7 +127,7 @@ class Player:
 
         if keys[self.tecla_cima]:
             self.quadrado.y -= self.velocidade
-
+            self.direcao = "cima"
             # Chamando a funcao colisao da classe Player
             colidiu, indice = self.colisao(lista_plataformas)
 
@@ -138,7 +138,7 @@ class Player:
 
         if keys[self.tecla_baixo]:
             self.quadrado.y += self.velocidade
-
+            self.direcao = "baixo"
             # Chamando a funcao colisao da classe Player
             colidiu, indice = self.colisao(lista_plataformas)
 
@@ -169,7 +169,7 @@ class Player:
         if (self.quantidade_balas > 0):
             if self.cool_down == 0:
                 som_tiro.play()
-                bala = Tiro(self.win, self.rect.center[0], self.rect.center[1])
+                bala = Tiro(self.win, self.rect.center[0], self.rect.center[1], self.direcao)
                 self.tiros.append(bala)
                 self.cool_down = 1
                 self.quantidade_balas -= 1
@@ -184,7 +184,7 @@ class Player:
         self.cooldown()
         for bala in self.tiros:
             
-            bala.movimento(vel, self.tecla_tiro)
+            bala.movimento(vel)
             if bala.loops>1:
                 self.tiros.remove(bala)
             elif bala.colisao(bala, obj):
@@ -312,6 +312,16 @@ def main():
                           pg.K_a, pg.K_d)
         player2.movimento(quantidade_plataform, quantidade_plataformQuebravel, nivel.grupo_quebravel, pg.K_UP,
                           pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT)
+
+        if player1.direcao == "baixo":
+            player1.imagem = pygame.image.load('imagens/cowboy_joaquim2.png')
+        elif player1.direcao == "cima":
+            player1.imagem = pygame.image.load('imagens/cowboy_joaquim2_costas.png')
+
+        if player2.direcao == "baixo":
+            player2.imagem = pygame.image.load('imagens/cowgirl_leila.png')
+        elif player2.direcao == "cima":
+            player2.imagem = pygame.image.load('imagens/cowgirl_leila.costas.png')
 
         screen.blit(tela_fundo, (0, 0))
 
