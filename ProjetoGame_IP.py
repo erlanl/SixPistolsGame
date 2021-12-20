@@ -332,11 +332,22 @@ def main():
 
         id1.draw()
         id2.draw()
+        
         if player1.vida <= 0:
             game_over(screen, 2)
         elif player2.vida <= 0:
             game_over(screen, 1)
         
+        if player1.direcao == "baixo":
+            player1.imagem = pygame.image.load('imagens/cowboy_joaquim2.png')
+        elif player1.direcao == "cima":
+            player1.imagem = pygame.image.load('imagens/cowboy_joaquim2_costas.png')
+
+        if player2.direcao == "baixo":
+            player2.imagem = pygame.image.load('imagens/cowgirl_leila.png')
+        elif player2.direcao == "cima":
+            player2.imagem = pygame.image.load('imagens/cowgirl_leila.costas.png')
+            
         #reseta o jogo
         if player1.vida <= 0 or player2.vida <= 0:
             keys = pg.key.get_pressed()
@@ -347,6 +358,7 @@ def main():
                 player2 = Player(screen, 260, 70, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_RCTRL, None,40,70,fonte_pontuacao, 'imagens/cowgirl_leila.png')
                 player1.inimigo=player2
                 player2.inimigo=player1
+
 
         spawn_cooldown += 1
         if spawn_cooldown >= 120:
@@ -368,22 +380,6 @@ def main():
         player1.draw(screen)
         player2.draw(screen)
 
-        if player1.vida <= 0:
-            game_over(screen, 2)
-        elif player2.vida <= 0:
-            game_over(screen, 1)
-        
-        #reseta o jogo
-        if player1.vida <= 0 or player2.vida <= 0:
-            keys = pg.key.get_pressed()
-
-            if keys[pg.K_SPACE]:
-                Coletaveis.lista_coletaveis=[]
-                player1 = Player(screen, 260, 530, pg.K_w, pg.K_s, pg.K_a, pg.K_d, pg.K_f, None,(screen.get_width()-90),530,fonte_pontuacao,'imagens/cowboy_joaquim2.png' )
-                player2 = Player(screen, 260, 70, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_RCTRL, None,40,70,fonte_pontuacao, 'imagens/cowgirl_leila.png')
-                player1.inimigo=player2
-                player2.inimigo=player1
-
         pg.display.flip()
         clock.tick(30)
 
@@ -395,7 +391,7 @@ screen = pygame.display.set_mode((600, 640))
 menu = pygame.image.load('imagens/tela_menu.png')
 
 
-class Botao:
+class Botao(pygame.sprite.Sprite):
     def __init__(self, imagem, posx, posy):
         super().__init__()
         self.image = pygame.image.load(imagem)
