@@ -64,7 +64,7 @@ class Velocidade(Coletaveis):
 
     def colisao_jogador(self, jogador):
         som_coleta.play()
-        if jogador.velocidade<15:
+        if jogador.velocidade<10:
             jogador.velocidade+=1
         self.remover()
         print(f"velocidade do jogador aumentada para {jogador.velocidade}")

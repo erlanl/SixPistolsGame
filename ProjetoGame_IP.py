@@ -55,7 +55,7 @@ class Player:
         self.quadrado = pg.Rect(x, y, 30, 30)
         self.rect = self.quadrado
         # Da linha 19 a 20, eh codigo base
-        self.velocidade = 10
+        self.velocidade = 6
         self.cor = 'WHITE'
         self.direcao = "baixo"
         self.tiros = []
@@ -190,7 +190,7 @@ class Player:
             elif bala.colisao(bala, obj):
                 self.tiros.remove(bala)
                 self.inimigo.vida -= 10
-                print(self.vida)
+                print(self.inimigo.vida)
                 if self.vida <= 0:
                     som_morte.play()
                 else:
@@ -267,6 +267,18 @@ def spawnarColetaveis(screen, evitar: list = []):
 
     spawnarObjeto(screen, escolhido, evitar, 20)
 
+def game_over(screen, ganhador):
+    fonte=pg.font.Font(os.path.join('Assets/SEASRN__.ttf'), 50)
+    frase = fonte.render("Game Over",True,"WHITE")
+    screen.blit(frase,(140,260,40,40))
+
+    fonte2=pg.font.Font(os.path.join('Assets/SEASRN__.ttf'), 20)
+    frase2 = fonte2.render(f"Jogador {ganhador} Venceu",True,"WHITE")
+    screen.blit(frase2,(190,320,40,40))
+
+    fonte3=pg.font.Font(os.path.join('Assets/SEASRN__.ttf'), 15)
+    frase3 = fonte3.render(f"Aperte Espaço para recomeçar",True,"WHITE")
+    screen.blit(frase3,(165,350,40,40))
 
 def main():
     spawn_cooldown = 0
@@ -282,8 +294,8 @@ def main():
     fonte_pontuacao = pg.font.Font(os.path.join('Assets/alarm clock.ttf'), 40)
     fonte_texto = pg.font.Font(os.path.join('Assets/SEASRN__.ttf'), 20)
 
-    player1 = Player(screen, 320, 240, pg.K_w, pg.K_s, pg.K_a, pg.K_d, pg.K_f, None,(screen.get_width()-90),530,fonte_pontuacao,'imagens/cowboy_joaquim2.png' )
-    player2 = Player(screen, 220, 140, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_RCTRL, None,40,70,fonte_pontuacao, 'imagens/cowgirl_leila.png')
+    player1 = Player(screen, 260, 530, pg.K_w, pg.K_s, pg.K_a, pg.K_d, pg.K_f, None,(screen.get_width()-90),530,fonte_pontuacao,'imagens/cowboy_joaquim2.png' )
+    player2 = Player(screen, 260, 70, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_RCTRL, None,40,70,fonte_pontuacao, 'imagens/cowgirl_leila.png')
     player1.inimigo=player2
     player2.inimigo=player1
 
@@ -301,12 +313,12 @@ def main():
         evitar_lista.append(obj)
 
     done = False
-
+    
     while not done:
         for event in pg.event.get():
-            if (event.type == pg.QUIT) or (player1.vida <= 0 or player2.vida <= 0):
+            if (event.type == pg.QUIT):
                 done = True
-
+        
         # Chamando a funcao movimento do player, dentro dessa funcao movimento sera chamada a funcao colisao do player
         player1.movimento(quantidade_plataform, quantidade_plataformQuebravel, nivel.grupo_quebravel, pg.K_w, pg.K_s,
                           pg.K_a, pg.K_d)
@@ -326,9 +338,6 @@ def main():
         screen.blit(tela_fundo, (0, 0))
 
         nivel.atualizar_tela(screen)
-
-        id1.draw()
-        id2.draw()
 
         spawn_cooldown += 1
         if spawn_cooldown >= 120:
@@ -350,11 +359,31 @@ def main():
         player1.draw(screen)
         player2.draw(screen)
 
+        id1.draw()
+        id2.draw()
+
+        if player1.vida <= 0:
+            game_over(screen, 2)
+        elif player2.vida <= 0:
+            game_over(screen, 1)
+        
+        #reseta o jogo
+        if player1.vida <= 0 or player2.vida <= 0:
+            keys = pg.key.get_pressed()
+
+            if keys[pg.K_SPACE]:
+                Coletaveis.lista_coletaveis=[]
+                player1 = Player(screen, 260, 530, pg.K_w, pg.K_s, pg.K_a, pg.K_d, pg.K_f, None,(screen.get_width()-90),530,fonte_pontuacao,'imagens/cowboy_joaquim2.png' )
+                player2 = Player(screen, 260, 70, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_RCTRL, None,40,70,fonte_pontuacao, 'imagens/cowgirl_leila.png')
+                player1.inimigo=player2
+                player2.inimigo=player1
+        
         pg.display.flip()
         clock.tick(30)
 
         pygame.display.update()
 
+    
 
 if __name__ == '__main__':
     pg.init()
