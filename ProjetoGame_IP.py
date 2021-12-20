@@ -3,6 +3,7 @@ import pygame as pg
 from pygame.locals import *
 import mapa
 import random
+import sys
 from pygame import mixer
 from interface import pontuacao
 from interface import texto
@@ -294,8 +295,8 @@ def main():
     fonte_pontuacao = pg.font.Font(os.path.join('Assets/alarm clock.ttf'), 40)
     fonte_texto = pg.font.Font(os.path.join('Assets/SEASRN__.ttf'), 20)
 
-    player1 = Player(screen, 260, 530, pg.K_w, pg.K_s, pg.K_a, pg.K_d, pg.K_f, None,(screen.get_width()-90),530,fonte_pontuacao,'imagens/cowboy_joaquim2.png' )
-    player2 = Player(screen, 260, 70, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_RCTRL, None,40,70,fonte_pontuacao, 'imagens/cowgirl_leila.png')
+    player1 = Player(screen, 320, 240, pg.K_w, pg.K_s, pg.K_a, pg.K_d, pg.K_f, None,(screen.get_width()-90),530,fonte_pontuacao,'imagens/cowboy_joaquim2.png' )
+    player2 = Player(screen, 220, 140, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_RCTRL, None,40,70,fonte_pontuacao, 'imagens/cowgirl_leila.png')
     player1.inimigo=player2
     player2.inimigo=player1
 
@@ -313,31 +314,40 @@ def main():
         evitar_lista.append(obj)
 
     done = False
-    
+
     while not done:
         for event in pg.event.get():
-            if (event.type == pg.QUIT):
+            if event.type == pg.QUIT:
                 done = True
-        
+
         # Chamando a funcao movimento do player, dentro dessa funcao movimento sera chamada a funcao colisao do player
         player1.movimento(quantidade_plataform, quantidade_plataformQuebravel, nivel.grupo_quebravel, pg.K_w, pg.K_s,
                           pg.K_a, pg.K_d)
         player2.movimento(quantidade_plataform, quantidade_plataformQuebravel, nivel.grupo_quebravel, pg.K_UP,
                           pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT)
 
-        if player1.direcao == "baixo":
-            player1.imagem = pygame.image.load('imagens/cowboy_joaquim2.png')
-        elif player1.direcao == "cima":
-            player1.imagem = pygame.image.load('imagens/cowboy_joaquim2_costas.png')
-
-        if player2.direcao == "baixo":
-            player2.imagem = pygame.image.load('imagens/cowgirl_leila.png')
-        elif player2.direcao == "cima":
-            player2.imagem = pygame.image.load('imagens/cowgirl_leila.costas.png')
-
         screen.blit(tela_fundo, (0, 0))
 
         nivel.atualizar_tela(screen)
+
+        id1.draw()
+        id2.draw()
+
+        if player1.vida <= 0:
+            game_over(screen, 2)
+        elif player2.vida <= 0:
+            game_over(screen, 1)
+        
+        #reseta o jogo
+        if player1.vida <= 0 or player2.vida <= 0:
+            keys = pg.key.get_pressed()
+
+            if keys[pg.K_SPACE]:
+                Coletaveis.lista_coletaveis=[]
+                player1 = Player(screen, 260, 530, pg.K_w, pg.K_s, pg.K_a, pg.K_d, pg.K_f, None,(screen.get_width()-90),530,fonte_pontuacao,'imagens/cowboy_joaquim2.png' )
+                player2 = Player(screen, 260, 70, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_RCTRL, None,40,70,fonte_pontuacao, 'imagens/cowgirl_leila.png')
+                player1.inimigo=player2
+                player2.inimigo=player1
 
         spawn_cooldown += 1
         if spawn_cooldown >= 120:
@@ -359,34 +369,61 @@ def main():
         player1.draw(screen)
         player2.draw(screen)
 
-        id1.draw()
-        id2.draw()
-
-        if player1.vida <= 0:
-            game_over(screen, 2)
-        elif player2.vida <= 0:
-            game_over(screen, 1)
-        
-        #reseta o jogo
-        if player1.vida <= 0 or player2.vida <= 0:
-            keys = pg.key.get_pressed()
-
-            if keys[pg.K_SPACE]:
-                Coletaveis.lista_coletaveis=[]
-                player1 = Player(screen, 260, 530, pg.K_w, pg.K_s, pg.K_a, pg.K_d, pg.K_f, None,(screen.get_width()-90),530,fonte_pontuacao,'imagens/cowboy_joaquim2.png' )
-                player2 = Player(screen, 260, 70, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_RCTRL, None,40,70,fonte_pontuacao, 'imagens/cowgirl_leila.png')
-                player1.inimigo=player2
-                player2.inimigo=player1
-        
         pg.display.flip()
         clock.tick(30)
 
         pygame.display.update()
 
-    
 
-if __name__ == '__main__':
-    pg.init()
-    main()
-    pg.quit()
-    exit()
+pygame.init()
+screen = pygame.display.set_mode((600, 640))
+menu = pygame.image.load('imagens/tela_menu.png')
+
+
+class Botao(pygame.sprite.Sprite):
+    def _init_(self, imagem, posx, posy):
+        super()._init_()
+        self.image = pygame.image.load(imagem)
+        self.rect = self.image.get_rect()
+        self.x = posx
+        self.y = posy
+    # coordenadas da área do botão
+    def coord(self):
+        self.rect.topleft = self.x, self.y
+    # verifica se o click do mouse foi feito na área do botão
+    def apertado(self, mx, my):
+        if mx > self.x and mx < (self.x + self.image.get_width()):
+            if my > self.y and my < (self.y + self.image.get_height()):
+                return True
+        return False
+    # desenha o botão na tela
+    def draw(self, surface):
+        surface.blit(self.image, (self.x, self.y))
+
+
+def menu_principal():
+    while True:
+        jogar = Botao('imagens/botao_jogar.png', 196, 364)
+        jogar.draw(screen)
+        sair = Botao('imagens/botao_sair.png', 196, 470)
+        sair.draw(screen)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == MOUSEBUTTONDOWN:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                # começa a rodar o jogo
+                if jogar.apertado(mouse_x, mouse_y):
+                    main()
+                # fecha a janela do pygame
+                if sair.apertado(mouse_x, mouse_y):
+
+                    pygame.quit()
+                    sys.exit()
+        pygame.display.update()
+        screen.blit(menu, (0, 0))
+
+
+menu_principal()
