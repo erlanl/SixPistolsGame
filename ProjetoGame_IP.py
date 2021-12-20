@@ -43,13 +43,18 @@ class Player:
         else: self.nome = 'player2'
 
         self.imagem = pygame.image.load(imagem)
-
+        #essa é a quantidade de balas de cada jogador
+        #ela recebe a janela onde ela aparece,o x e y do canto superior esquerdo, tem cor branca,e usa a fonte
+        #mandaram na construcao do player, nesse caso é a fonte relogio
         self.pontos = pontuacao(win, px, py, (255, 255, 255), fonte)
+
+
         self.tecla_cima = tecla_cima
         self.tecla_baixo = tecla_baixo
         self.tecla_esquerda = tecla_esquerda
         self.tecla_direita = tecla_direita
         self.tecla_tiro = tecla_tiro
+        #velocidade da bala
         self.vel = 10
         self.quantidade_balas = 0
         # O player inicia como um quadrado em vez de pegarmos uma caracteristica por vez e montarmos o quadrado depois
@@ -57,7 +62,12 @@ class Player:
         self.rect = self.quadrado
         self.velocidade = 6
         self.cor = 'WHITE'
+        #a direcao pra onde o jogador está olhando
+        #é usada na funcao do tiro
+        #comeca como baixo
         self.direcao = "baixo"
+
+
         self.tiros = []
         self.cool_down = 0
         self.vida = 60
@@ -101,7 +111,12 @@ class Player:
         # Variavel, dentro da funcao, que ira receber o indice da plataforma que colidiu com o player
         indice: int
 
+
+        #além de movimentar o jogador
+        #essa funcao muda o atributo direcao do jogador
+        #a partir da tecla que foi usada
         if keys[self.tecla_esquerda]:
+            #
             self.direcao = "esquerda"
             self.quadrado.x -= self.velocidade
 
@@ -175,6 +190,7 @@ class Player:
         if (self.quantidade_balas > 0):
             if self.cool_down == 0: # Caso o cool down seja 0 já pode atirar
                 som_tiro.play()
+                #aqui entra a direcao
                 bala = Tiro(self.win, self.rect.center[0], self.rect.center[1], self.direcao)
                 self.tiros.append(bala)
                 self.cool_down = 1
@@ -186,6 +202,9 @@ class Player:
         """
         Método de adicionar balas 
         """
+        #adicionado no contador de municao
+        #+1 quando pega bala
+        #-1 quando atira
         self.pontos.soma(valor)
 
     def movimento_tiro(self, vel, obj, lista_plataforma: list, list_quebravel: list, nivelQuebravel):
@@ -213,7 +232,7 @@ class Player:
 
     def draw(self, screen):
         """
-        Método de desenhar bala, player e a vida
+        Método de desenhar bala,pontuacao, player e a vida
         """
         screen.blit(self.imagem, self.rect)
         for bala in self.tiros:
@@ -312,11 +331,14 @@ def main():
     fonte_pontuacao = pg.font.Font(os.path.join('Assets/alarm clock.ttf'), 40)
     fonte_texto = pg.font.Font(os.path.join('Assets/SEASRN__.ttf'), 20)
 
+    #criando os jogadores
+    #com os controles, a posicao deles, a fonte que vai ser usada na pontuacao, a imagem do sprite...
     player1 = Player(screen, 260, 530, pg.K_w, pg.K_s, pg.K_a, pg.K_d, pg.K_f, None,(screen.get_width()-90),530,fonte_pontuacao,'imagens/cowboy_joaquim2.png' )
     player2 = Player(screen, 260, 70, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_RCTRL, None,40,70,fonte_pontuacao, 'imagens/cowgirl_leila.png')
     player1.inimigo=player2
     player2.inimigo=player1
 
+    #esse é o texto de Jogador 1 ou Jogador 2
     # os argumentos sao a janela, o texto, posicao x , posicao y, cor e a fonte
     id1 = texto(screen, 'Jogador 1', (screen.get_width() - 175), 570, (255, 255, 255), fonte_texto)
     id2 = texto(screen, 'Jogador 2', 40, 40, (255, 255, 255), fonte_texto)
@@ -361,7 +383,10 @@ def main():
             game_over(screen, 2)
         elif player2.vida <= 0:
             game_over(screen, 1)
-        
+
+        #esses condicionais olham pra qual direcao o jogador está olhando
+        # e muda o sprite dependendo da direcao
+        #mas como só temos 2 sprites ele só olha e muda se está olhando pra baixo ou pra cima
         if player1.direcao == "baixo":
             player1.imagem = pygame.image.load('imagens/cowboy_joaquim2.png')
         elif player1.direcao == "cima":

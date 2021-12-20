@@ -1,9 +1,12 @@
 import pygame.display
 import pygame as pg
 
-
+#essa classe pontuacao
+#é uma classe que mostra na tela números
+#que no jogo foi usada para mostrar a quantidade de municao
 class pontuacao:
     def __init__(self,win,x,y,cor,fonte):
+        #ele comeca como 0 no padrão
         self.texto = '00'
         self.x = x
         self.y = y
@@ -13,19 +16,29 @@ class pontuacao:
         self.win = win
 
     def set_valor(self,valor):
+        #se você quiser botar qualquer valor no display
         if valor < 10:
             valor = '0'+ str(valor)
         self.texto = str(valor)
 
     def soma(self,valor):
+        #essa é a funcao para somar uma quantidade
+        #ao valor já existente
         valor = valor + int(self.texto)
         if valor < 10:
             valor = '0'+ str(valor)
         self.texto = str(valor)
     def draw(self):
+        #criando a surface
         numeros = self.fonte.render(self.texto,True,self.cor)
+        #desenhando
         self.win.blit(numeros,(self.x,self.y,10,10))
 
+#essa é parecida com a funcao de pontuacao
+#mas é usada para mostrar texto na tela
+#então não se pode somar
+#apenas mudar o texto
+#se precisar
 class texto:
     def __init__(self, win,texto ,x, y, cor, fonte):
         self.texto = texto
@@ -35,9 +48,13 @@ class texto:
         self.fonte = fonte
         self.win = win
     def mudar(self,frase):
+        #se você quiser mudar o texto
+        #mostrado
         self.texto = frase
     def draw(self):
+        #faz a surface
         frase = self.fonte.render(self.texto,True,self.cor)
+        #desenha na tela
         self.win.blit(frase,(self.x,self.y,10,10))
 
 class Vida:
