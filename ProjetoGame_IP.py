@@ -55,7 +55,6 @@ class Player:
         # O player inicia como um quadrado em vez de pegarmos uma caracteristica por vez e montarmos o quadrado depois
         self.quadrado = pg.Rect(x, y, 30, 30)
         self.rect = self.quadrado
-        # Da linha 19 a 20, eh codigo base
         self.velocidade = 6
         self.cor = 'WHITE'
         self.direcao = "baixo"
@@ -86,7 +85,6 @@ class Player:
         # Caso contrario, retornamos False e um valor escolhido aleatoriamente
         return False, 0
 
-    # Linha 38 ate 39 eh codigo basico
 
     def movimento(self, lista_plataformas, lista_quebravel, nivelQuebravel, tecla_cima, tecla_baixo, tecla_esquerda,tecla_direita):
 
@@ -103,7 +101,6 @@ class Player:
         # Variavel, dentro da funcao, que ira receber o indice da plataforma que colidiu com o player
         indice: int
 
-        # Linha 48 ate 49 eh codigo base
         if keys[self.tecla_esquerda]:
             self.direcao = "esquerda"
             self.quadrado.x -= self.velocidade
@@ -162,7 +159,6 @@ class Player:
         # Bala se movimentando repetidamente até alcançar algo
         self.movimento_tiro(self.vel, self.inimigo, lista_plataformas, lista_quebravel, nivelQuebravel)
 
-    # Linha 93 ate 94 codigo basico
     def cooldown(self):
         """
         Método de cooldown das balas
@@ -305,7 +301,10 @@ def main():
     nivel = mapa.Mapa('mapa.txt')
     tela_fundo = pygame.image.load('imagens/background.png')
 
+    #Lista com as partes do cenario que tem colisao
     quantidade_plataform = []
+
+    #Lista com os barris que podem ser quebrados
     quantidade_plataformQuebravel = []
 
     clock = pg.time.Clock()
@@ -323,9 +322,13 @@ def main():
     id2 = texto(screen, 'Jogador 2', 40, 40, (255, 255, 255), fonte_texto)
 
     evitar_lista = [player1, player2]
+
+    #Pegando as partes do cenario que irao ter colisao
     for objeto in nivel.grupo:
         quantidade_plataform.append(objeto.rect)
         evitar_lista.append(objeto)
+
+    #Pegando os barris que podem ser quebrados
     for obj in nivel.grupo_quebravel:
         quantidade_plataformQuebravel.append([obj, 3])
         quantidade_plataform.append(obj.rect)
