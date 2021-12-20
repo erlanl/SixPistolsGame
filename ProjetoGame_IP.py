@@ -13,6 +13,7 @@ import os
 from coletaveis import *
 from tiro import *
 
+#sons e volume dos sons do jogo
 som_tiro= mixer.Sound("sons/atirar.wav")
 som_tiro.set_volume(0.3)
 som_dano= mixer.Sound("sons/dano.wav")
@@ -222,7 +223,9 @@ class Player:
         self.vida_p.vida_funcao(self.vida)
         self.vida_p.draw()
 
-
+"""
+Método de spawnar um objeto em um lugar aleatório
+"""
 def spawnarObjeto(screen, classe, evitaveis: list = [], borda: int = 0, quantidade: int = 1):
     # cria uma copia pra evitar a modificação da lista original
     evitaveis = evitaveis.copy()
@@ -257,7 +260,9 @@ def spawnarObjeto(screen, classe, evitaveis: list = [], borda: int = 0, quantida
         # adiciona ao evitaveis para impedir que alguem spawne sobre ele
         evitaveis.append(objeto)
 
-
+"""
+Método de spawnar coletaveis com nos pesos em um lugar aleatorio
+"""
 def spawnarColetaveis(screen, evitar: list = []):
     # so permite que 8 coletaveis existam no maximo
     if len(Coletaveis.lista_coletaveis) >= 8:
@@ -282,6 +287,9 @@ def spawnarColetaveis(screen, evitar: list = []):
 
     spawnarObjeto(screen, escolhido, evitar, 20)
 
+"""
+Exibe o texto de Game Over do jogo
+"""
 def game_over(screen, ganhador):
     fonte=pg.font.Font(os.path.join('Assets/OXYGENE1.ttf'), 50)
     frase = fonte.render("GAME OVER",True,"WHITE")
@@ -357,6 +365,7 @@ def main():
         id1.draw()
         id2.draw()
         
+        #exibe a tela de game over mostrando qual jogador ganhou
         if player1.vida <= 0:
             game_over(screen, 2)
         elif player2.vida <= 0:
@@ -372,7 +381,7 @@ def main():
         elif player2.direcao == "cima":
             player2.imagem = pygame.image.load('imagens/cowgirl_leila.costas.png')
 
-        #reseta o jogo
+        #reseta o jogo depois de um game over ao apertar espaço
         if player1.vida <= 0 or player2.vida <= 0:
             keys = pg.key.get_pressed()
 
@@ -384,7 +393,8 @@ def main():
                 player2.inimigo=player1
                 nivel = mapa.Mapa('mapa.txt')
 
-
+        
+        #spawna um coletavel dependendo do cooldown
         spawn_cooldown += 1
         if spawn_cooldown >= 120:
             spawn_cooldown = 0
