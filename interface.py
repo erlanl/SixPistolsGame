@@ -41,6 +41,9 @@ class texto:
         self.win.blit(frase,(self.x,self.y,10,10))
 
 class Vida:
+    """
+    Classe de sprite de vida
+    """
     def __init__(self, win,x,y, img_vida, nome, vida):
         self.x = x
         self.y = y
@@ -52,9 +55,12 @@ class Vida:
         self.erro = False
 
     def vida_funcao(self, vida_atual):
-        if vida_atual == 50:
+        """
+        Método de verificar a vida do player
+        """
+        if vida_atual == 50: # Em determinada vida o coração fica ao meio
             self.vidas[2] = pygame.image.load('imagens/coracao_vida_partido.png')
-        elif vida_atual == 40:
+        elif vida_atual == 40: # Perdendo um coração todo
             try:
                 self.vidas.pop(2)
             except IndexError:
@@ -76,18 +82,21 @@ class Vida:
 
         
     def draw(self):
-        if self.nome == 'player1':
+        """
+        Método de desenhar os corações
+        """
+        if self.nome == 'player1': # Se for o player 1 desenha o cowboy
             imagem = pygame.image.load('imagens/head_cowboy.png')
             inicialx= self.x - 30
-        elif self.nome == 'player2':
+        elif self.nome == 'player2': # Se for o player 2 desenha a cowgirl
             imagem = pygame.image.load('imagens/head_cowgirl.png')
             inicialx= self.x - 40
         
         
         self.win.blit(imagem,(inicialx,self.y+20,20,20))
 
-        for i in range(len(self.vidas)):
-            if i == 0:
+        for i in range(len(self.vidas)): # Desenhar vários corações
+            if i == 0: # Posições de cada coração
                 if self.nome == 'player1':
                     inicialx = inicialx + 40
                 elif self.nome == 'player2':

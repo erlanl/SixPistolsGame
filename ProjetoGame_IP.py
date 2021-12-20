@@ -25,7 +25,7 @@ som_passos= mixer.Sound("sons/passos.wav")
 som_passos.set_volume(0.15)
 
 mixer.music.load("sons/musica.mp3")
-mixer.music.set_volume(0.03)
+mixer.music.set_volume(0.2)
 mixer.music.play(-1)
 
 class Player:
@@ -105,6 +105,7 @@ class Player:
 
         # Linha 48 ate 49 eh codigo base
         if keys[self.tecla_esquerda]:
+            self.direcao = "esquerda"
             self.quadrado.x -= self.velocidade
 
             # Chamando a funcao colisao da classe Player
@@ -117,6 +118,7 @@ class Player:
 
         if keys[self.tecla_direita]:
             self.quadrado.x += self.velocidade
+            self.direcao = "direita"
 
             # Chamando a funcao colisao da classe Player
             colidiu, indice = self.colisao(lista_plataformas)
@@ -157,18 +159,25 @@ class Player:
         if keys[self.tecla_tiro]:
             self.tiro()
 
+        # Bala se movimentando repetidamente até alcançar algo
         self.movimento_tiro(self.vel, self.inimigo, lista_plataformas, lista_quebravel, nivelQuebravel)
 
     # Linha 93 ate 94 codigo basico
     def cooldown(self):
-        if self.cool_down >= self.COOLDOWN:
+        """
+        Método de cooldown das balas
+        """
+        if self.cool_down >= self.COOLDOWN: # Caso for maior que a constante de cooldown pode resetar para atirar
             self.cool_down = 0
         elif self.cool_down > 0:
             self.cool_down += 1
-
+    
     def tiro(self):
+        """
+        Método de tiro 
+        """
         if (self.quantidade_balas > 0):
-            if self.cool_down == 0:
+            if self.cool_down == 0: # Caso o cool down seja 0 já pode atirar
                 som_tiro.play()
                 bala = Tiro(self.win, self.rect.center[0], self.rect.center[1], self.direcao)
                 self.tiros.append(bala)
@@ -178,29 +187,38 @@ class Player:
                 print(self.quantidade_balas)
 
     def Ponto_soma(self, valor):
+        """
+        Método de adicionar balas 
+        """
         self.pontos.soma(valor)
 
     def movimento_tiro(self, vel, obj, lista_plataforma: list, list_quebravel: list, nivelQuebravel):
+        """
+        Método de mover a bala
+        """
         vel = self.vel
-        self.cooldown()
+        self.cooldown() # Chamar o cooldown
         for bala in self.tiros:
             
-            bala.movimento(vel)
-            if bala.loops>1:
+            bala.movimento(vel) # Chamar o método do movimento dentro da classe Tiro
+            if bala.loops>1: # Impedir que o loop da bala fique infinito
                 self.tiros.remove(bala)
             elif bala.colisao(bala, obj):
                 self.tiros.remove(bala)
                 self.inimigo.vida -= 10
                 print(self.inimigo.vida)
-                if self.vida <= 0:
+                if self.vida <= 0: # Som da morte
                     som_morte.play()
                 else:
                     som_dano.play()
-            elif (bala.colisao_plataforma(lista_plataforma, list_quebravel, nivelQuebravel)):
+            elif (bala.colisao_plataforma(lista_plataforma, list_quebravel, nivelQuebravel)): # Chamar método de objetos quebráveis e verificar colisão entre eles
                 som_batida.play()
                 self.tiros.remove(bala)
 
     def draw(self, screen):
+        """
+        Método de desenhar bala, player e a vida
+        """
         screen.blit(self.imagem, self.rect)
         for bala in self.tiros:
             bala.draw()
@@ -269,16 +287,16 @@ def spawnarColetaveis(screen, evitar: list = []):
     spawnarObjeto(screen, escolhido, evitar, 20)
 
 def game_over(screen, ganhador):
-    fonte=pg.font.Font(os.path.join('Assets/SEASRN__.ttf'), 50)
-    frase = fonte.render("Game Over",True,"WHITE")
+    fonte=pg.font.Font(os.path.join('Assets/OXYGENE1.ttf'), 50)
+    frase = fonte.render("GAME OVER",True,"WHITE")
     screen.blit(frase,(140,260,40,40))
 
-    fonte2=pg.font.Font(os.path.join('Assets/SEASRN__.ttf'), 20)
-    frase2 = fonte2.render(f"Jogador {ganhador} Venceu",True,"WHITE")
+    fonte2=pg.font.Font(os.path.join('Assets/OXYGENE1.ttf'), 20)
+    frase2 = fonte2.render(f"JOGADOR {ganhador} VENCEU",True,"WHITE")
     screen.blit(frase2,(190,320,40,40))
 
-    fonte3=pg.font.Font(os.path.join('Assets/SEASRN__.ttf'), 15)
-    frase3 = fonte3.render(f"Aperte Espaço para recomeçar",True,"WHITE")
+    fonte3=pg.font.Font(os.path.join('Assets/OXYGENE1.ttf'), 15)
+    frase3 = fonte3.render(f"APERTE ESPACO PARA CONTINUAR",True,"WHITE")
     screen.blit(frase3,(165,350,40,40))
 
 def main():
@@ -295,8 +313,8 @@ def main():
     fonte_pontuacao = pg.font.Font(os.path.join('Assets/alarm clock.ttf'), 40)
     fonte_texto = pg.font.Font(os.path.join('Assets/SEASRN__.ttf'), 20)
 
-    player1 = Player(screen, 320, 240, pg.K_w, pg.K_s, pg.K_a, pg.K_d, pg.K_f, None,(screen.get_width()-90),530,fonte_pontuacao,'imagens/cowboy_joaquim2.png' )
-    player2 = Player(screen, 220, 140, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_RCTRL, None,40,70,fonte_pontuacao, 'imagens/cowgirl_leila.png')
+    player1 = Player(screen, 260, 530, pg.K_w, pg.K_s, pg.K_a, pg.K_d, pg.K_f, None,(screen.get_width()-90),530,fonte_pontuacao,'imagens/cowboy_joaquim2.png' )
+    player2 = Player(screen, 260, 70, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_RCTRL, None,40,70,fonte_pontuacao, 'imagens/cowgirl_leila.png')
     player1.inimigo=player2
     player2.inimigo=player1
 
@@ -330,6 +348,9 @@ def main():
 
         nivel.atualizar_tela(screen)
 
+        player1.draw(screen)
+        player2.draw(screen)
+
         id1.draw()
         id2.draw()
         
@@ -347,7 +368,7 @@ def main():
             player2.imagem = pygame.image.load('imagens/cowgirl_leila.png')
         elif player2.direcao == "cima":
             player2.imagem = pygame.image.load('imagens/cowgirl_leila.costas.png')
-            
+
         #reseta o jogo
         if player1.vida <= 0 or player2.vida <= 0:
             keys = pg.key.get_pressed()
@@ -358,6 +379,7 @@ def main():
                 player2 = Player(screen, 260, 70, pg.K_UP, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_RCTRL, None,40,70,fonte_pontuacao, 'imagens/cowgirl_leila.png')
                 player1.inimigo=player2
                 player2.inimigo=player1
+                nivel = mapa.Mapa('mapa.txt')
 
 
         spawn_cooldown += 1
@@ -377,8 +399,7 @@ def main():
                 coletavel.colisao_jogador(player2)
                 player2.pontos.set_valor(player2.quantidade_balas)
 
-        player1.draw(screen)
-        player2.draw(screen)
+        
 
         pg.display.flip()
         clock.tick(30)
